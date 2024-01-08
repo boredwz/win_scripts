@@ -14,7 +14,7 @@ if batteryStatus <> 1 then
     fileArgument = ""
 else
     ' On Battery power
-    fileArgument = " -Quit"
+    fileArgument = " -Shutdown"
 end if
 
 scriptDir = objFSO.GetParentFolderName(WScript.ScriptFullName)
