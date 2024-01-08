@@ -17,7 +17,7 @@ param
 
 
 
-function checkMulti ( [switch]$Exit )
+function CheckMulti ([switch]$Exit)
 {
     $lock = "$env:TMP\#adm_scripts_Loader_lock"
 
@@ -39,7 +39,7 @@ function checkMulti ( [switch]$Exit )
     }
 }
 
-function preventDoubleInstance ( [switch]$Output )
+function PreventDoubleInstance ([switch]$Output)
 {
     try { $scriptFileName = split-path $MyInvocation.PSCommandPath -Leaf } catch { $scriptFileName = $Null }
     try
@@ -47,13 +47,13 @@ function preventDoubleInstance ( [switch]$Output )
         [Array]$psProcesses = @(Get-WmiObject Win32_Process -Filter "name like '%Powershell.exe%' and handle != '$pid'" | Where-Object {$_})
     }
     catch { Throw }
-    if ( $psProcesses.Count -gt 0 )
+    if ($psProcesses.Count -gt 0)
     {
-        foreach ( $psProcess in $psProcesses )
+        foreach ($psProcess in $psProcesses)
         {
-            if ( $psProcess.CommandLine -like "*$scriptFileName*" -and $scriptFileName )
+            if ($psProcess.CommandLine -like "*$scriptFileName*" -and $scriptFileName)
             {
-                if ( $Output ) { "== Found a PS process running this script, trying to kill..." }
+                if ($Output) { "== Found a PS process running this script, trying to kill..." }
                 try { Stop-Process -Id $psProcess.Handle -Force -Confirm:$False } catch { Throw }
             }
         }
@@ -76,26 +76,26 @@ function RestartExplorer
 "================== Start =================="
 
 #   LOG: Source (Trigger)
-if ( $TimeSwitchModule ) { "Src: TimeSwitchModule" }
-if ( $BatteryStatusChanged ) { "Src: BatteryStatusChanged" }
-if ( $Manual ) { "Src: Manual" }
-if ( $SystemResume ) { "Src: SystemResume" }
-if ( $SystemUnlock ) { "Src: SystemUnlock" }
+if ($TimeSwitchModule) { "Src: TimeSwitchModule" }
+if ($BatteryStatusChanged) { "Src: BatteryStatusChanged" }
+if ($Manual) { "Src: Manual" }
+if ($SystemResume) { "Src: SystemResume" }
+if ($SystemUnlock) { "Src: SystemUnlock" }
 
 Start-Sleep -m 500
 
 #   LOG: Doubled instance check v1 (Lock file check), if true then exit
-if ( checkMulti ) { "================== Multi =================="; return }
+if (CheckMulti) { "================== Multi =================="; return }
 
 #   LOG: Doubled instance check v2 (Find PS process), if true then try to exit
-preventDoubleInstance -Output
+PreventDoubleInstance -Output
 
 RestartExplorer
 
 #   Run each script in '#scripts' dir, except '#blabla.ps1'
-if ( $Dark ) { $scriptArgs = " -Dark" }
+if ($Dark) { $scriptArgs = " -Dark" }
 $scripts = Get-ChildItem ".\#scripts\*.ps1" -File | Where-Object { $_.name -notmatch '^\#' }
-foreach ( $script in $scripts )
+foreach ($script in $scripts)
 {
     Start-Process PowerShell -WindowStyle Hidden -ArgumentList "-ExecutionPolicy Bypass -File", ($script.fullname + $scriptArgs)
     #   LOG: [script] + Arguments
@@ -103,7 +103,7 @@ foreach ( $script in $scripts )
 }
 
 #   Reset Doubled instance check v1 (Remove lock file)
-checkMulti -Exit
+CheckMulti -Exit
 
 "=================== End ==================="
 return
