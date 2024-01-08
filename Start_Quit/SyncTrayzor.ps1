@@ -1,10 +1,7 @@
-#  SyncTrayzor Start/Quit (PowerShell)
+#  SyncTrayzor Start/Shutdown (PowerShell)
 
-param
-(
-    [switch]$Quit
-)
+param ([switch]$Shutdown)
 
 $syncTrayzor = "$env:PROGRAMFILES\SyncTrayzor\synctrayzor.exe"
-$syncTrayzorArgs = if ( $Quit ) { "--shutdown" } else { "--minimized" }
+$syncTrayzorArgs = if ($Shutdown) { "--shutdown" } else { "--minimized" }
 . $syncTrayzor $syncTrayzorArgs

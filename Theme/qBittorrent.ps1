@@ -34,7 +34,7 @@ $useCustomUITheme = if ( $Dark ) { "true" } else { "false" }
 $process = Get-Process "qbittorrent" -ErrorAction SilentlyContinue
 
 #   Exit existing qBittorent app
-if ( $process )
+if ($process)
 {
     [void]$process.CloseMainWindow()
     for ($i = 0; ($i -lt 30) -and (!$process.HasExited); $i++) { Start-Sleep -m 500 }
@@ -43,4 +43,4 @@ if ( $process )
 
 #   Ini edit and qBittorrent start
 (Get-Content $ini) -replace "^(General\\UseCustomUITheme=).*`$","`${1}$useCustomUITheme" | Set-Content "$ini"
-if ( $restart ) { Start-Process "$qBTPath\qbittorrent.exe" }
+if ($restart) { Start-Process "$qBTPath\qbittorrent.exe" }
