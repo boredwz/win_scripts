@@ -1,12 +1,17 @@
-#  SyncTrayzor [Open/Close] (PowerShell)
+param([ValidateSet("Start", "Stop")][string]$Command = "Start",[switch]$Force)
 
-param
-(
-    [Parameter(Mandatory=$true)][ValidateSet('Open', '+', 'Close', '-')]
-    [string]$Status,
-    [switch]$Force
-)
+$gps = Get-Process -Name "SyncTrayzor"
 
-$exePath = "$env:PROGRAMFILES\SyncTrayzor\synctrayzor.exe"
-$exeArgs = if ($Status -match "Open|\+") { "--minimized" } else { "--shutdown" }
-. $exePath $exeArgs
+if ($Command -match "Start")
+{
+	if ($gps) { return }
+    Start-Process "$env:PROGRAMFILES\SyncTrayzor\synctrayzor.exe" `
+        -WorkingDirectory "$env:PROGRAMFILES\SyncTrayzor" `
+        -ArgumentList "--minimized"
+}
+else
+{
+    Start-Process "$env:PROGRAMFILES\SyncTrayzor\synctrayzor.exe" `
+        -WorkingDirectory "$env:PROGRAMFILES\SyncTrayzor" `
+        -ArgumentList "--shutdown"
+}

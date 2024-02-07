@@ -1,10 +1,8 @@
 #  BluetoothControl [On/Off] (PowerShell)
 
-[CmdletBinding(DefaultParameterSetName="set1")]
 param
 (
-    [Parameter(ParameterSetName="test1")]
-    [ValidateSet('On', '+', 'Off', '-')]
+    [ValidateSet('On', 'Off')]
     [string]$Status,
     [switch]$Force
 )
@@ -65,7 +63,7 @@ function Set-Bluetooth  # On, Off, Toggle
     Await ($bluetooth.SetStateAsync($BluetoothStatus)) ([Windows.Devices.Radios.RadioAccessStatus]) | Out-Null
 }
 
-if ($Status -match "On|\+") {Set-Bluetooth On}
+if ($Status -match "On") {Set-Bluetooth On}
 else
 {
     if (IsAnyBluetoothDeviceConnected $deviceList) { return }
