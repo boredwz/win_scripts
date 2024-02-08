@@ -88,7 +88,7 @@ if ($Command -match "Start")
         -PassThru
     Start-Sleep -Seconds 2
     #$Process.CloseMainWindow()
-    $Process | Set-WindowState -State MAXIMIZE
+    $Process | Set-WindowState -State SHOWMAXIMIZED
     Start-Sleep -Seconds 1
     $Process | Set-WindowState -State MINIMIZE
 }
