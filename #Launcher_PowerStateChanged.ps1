@@ -1,4 +1,4 @@
-#  #Launcher_BatteryStatus (PowerShell)
+#  #Launcher_PowerStateChanged (PowerShell)
 
 $isCharging = (Get-CIMInstance Win32_Battery).BatteryStatus -ne 1
 Set-Location $PSScriptRoot
