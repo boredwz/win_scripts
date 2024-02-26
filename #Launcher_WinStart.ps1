@@ -6,7 +6,7 @@ Set-Location $PSScriptRoot
 & ".\EQ APO (PhilipsOff + VolDown).lnk"
 & ".\Rainmeter.lnk"
 & ".\Sandboxie.lnk"
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 8
 & ".\AutoDarkMode.lnk"
 
 if (!$isCharging)
