@@ -19,7 +19,7 @@ param
 
 function CheckMulti ([switch]$Exit)
 {
-    $lock = "$env:TMP\#adm_scripts_Loader_lock"
+    $lock = ".\#ADM_scripts_Launcher_lock"
 
     if ($Exit)
     {
@@ -91,6 +91,7 @@ if (CheckMulti) { "================== Multi =================="; return }
 PreventDoubleInstance -Output
 
 RestartExplorer
+Start-Sleep 3
 
 #   Run each script in the '#scripts' dir, except '#blabla.ps1'
 if ($Dark) { $scriptArgs = " -Dark" }

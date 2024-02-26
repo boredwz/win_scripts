@@ -30,7 +30,7 @@ param
 
 
 
-function Import
+function ImportFuncs
 {
     #   Get-GithubLatestRelease.ps1
     Invoke-WebRequest -UseBasicParsing `
@@ -202,7 +202,7 @@ $RMPath = (Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Rainmeter" -ErrorAction 
 if ( !$RMPath ) { $RMPath = Join-Path $env:PROGRAMFILES "Rainmeter" }
 if ( !(Test-Path (Join-Path $RMPath "Rainmeter.exe")) )
 {
-    if (CheckInternetConnection) { Import } else { return }
+    if (CheckInternetConnection) { ImportFuncs } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "Rainmeter not found. Download and install now?"
     if ( $result ) { RMInstaller } else { return }
 }
@@ -219,7 +219,7 @@ if ( !(Get-Process "rainmeter" -ErrorAction SilentlyContinue) )
 $YFPath = Join-Path $env:USERPROFILE "Documents\Rainmeter\Skins\YourFlyouts"
 if ( !(Test-Path $YFPath) )
 {
-    if (CheckInternetConnection) { Import } else { return }
+    if (CheckInternetConnection) { ImportFuncs } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "YourFlyouts2 not found. Download and install now?"
     if ($result) { yourFlyoutsInstaller; YFSetWin11 $YFPath } else { return }
 }
