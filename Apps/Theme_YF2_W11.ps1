@@ -1,4 +1,4 @@
-#  YourFlyouts2 (Win11 Skin) (PowerShell)
+#  YourFlyouts2 (Win11 Skin) (PowerShell)https://github.com/wvzxn/YourFlyouts/zipball/main
 #  
 #  [Author]
 #    wvzxn | https://github.com/wvzxn
@@ -28,6 +28,15 @@ param
     [switch]$Dark
 )
 
+
+
+function Import
+{
+    #   Get-GithubLatestRelease.ps1
+    Invoke-WebRequest -UseBasicParsing `
+    "https://gist.githubusercontent.com/wvzxn/e7872773f4c44671ca37fad7ca3912b7/raw/Get-GithubLatestRelease.ps1" | `
+    Invoke-Expression
+}
 function msgBox
 {
     param
@@ -43,17 +52,9 @@ function msgBox
     return $msgBoxResult -like "Yes"
 }
 
-function Get-GithubLatestReleaseUrl
+function CheckInternetConnection
 {
-    param
-    (
-        [string]$Author,
-        [string]$Repo,
-        [string]$Pattern
-    )
-
-    $LatestReleases = Invoke-WebRequest "https://api.github.com/repos/$Author/$Repo/releases/latest" | ConvertFrom-Json
-    return ($LatestReleases.assets.browser_download_url | Select-String $Pattern).Line
+    return (Test-Connection "www.google.com" -Count 2 -Quiet)
 }
 
 function EditIniValues
@@ -71,65 +72,72 @@ function EditIniValues
     {
         $a = $PropsValues[$i]
         $b = $PropsValues[$i+1]
-        if ($a -eq "") {$a = "[^;].*?"}
+        if ($a -eq "") {$a = "[^;]\w+?"}
         $text = $text -replace "^($a\=).*`$","`${1}$b"
     }
     $text | Set-Content $Path
+    Start-Sleep 1
 }
 
 function RMInstaller
 {
-    $exePath = "$env:PROGRAMFILES\Rainmeter\Rainmeter.exe"
+    $exePath = Join-Path $env:PROGRAMFILES "Rainmeter\Rainmeter.exe"
 
     #   Download
-    $installerUrl = Get-GithubLatestReleaseUrl 'rainmeter' 'rainmeter' '.exe'
-    $fileName = $installerUrl -replace '^.+\/([^\/]+?)$','$1'
-    (New-Object System.Net.WebClient).DownloadFile($installerUrl, "$env:TMP\$fileName")
+    $installerPath = Join-Path $env:TMP (Get-GithubLatestRelease "rainmeter" "rainmeter" ".exe" -getname)
+    Get-GithubLatestRelease "rainmeter" "rainmeter" ".exe" -dl -dest $env:TMP
     
     #   Install
-    Start-Process "$env:TMP\$fileName" -Wait -ArgumentList "/S"
-    Remove-Item "$env:TMP\$fileName" -Force
-    Start-Sleep 1
+    Start-Process $installerPath "/S" -Wait
+    Remove-Item $installerPath -Force
 
     #   Start Rainmeter.exe
     if ( !(Get-Process 'rainmeter' -ErrorAction SilentlyContinue) ) { Start-Process $exePath; Start-Sleep 2 }
 
     #   Rainmeter Cleanup
-    "Clock", "Disk", "System", "Welcome" | ForEach-Object { . $exePath !DeactivateConfig "illustro\$_" }
-    . $exePath "!Quit"
+    "Clock", "Disk", "System", "Welcome" | ForEach-Object {
+        Start-Process $exePath "!DeactivateConfig", "illustro\$_"
+        Start-Sleep -Milliseconds 500
+    }
+    Start-Process $exePath "!Quit"
+    Start-Sleep -Milliseconds 500
+    $ini = Join-Path $env:APPDATA "Rainmeter\Rainmeter.ini"
+    (Get-Content $ini) -replace `
+        "(SkinPath\=.+?)`$", `
+        "`$1`nHardwareAcceleration=1`nDisableAutoUpdate=1`nDisableVersionCheck=1" | `
+        Set-Content $ini
     Start-Sleep 1
-    $ini="$env:APPDATA\Rainmeter\Rainmeter.ini"
-    (Get-Content $ini) -replace '(SkinPath=.+?)$',"`$1`nHardwareAcceleration=1`nDisableAutoUpdate=1`nDisableVersionCheck=1" | Set-Content $ini
-    Start-Process $exePath
+    Start-Process $exePath; Start-Sleep 1
 }
 
 function YFInstaller
 {
-    Set-Location "$env:TMP"
-
     #   Download
-    $installerUrl = Get-GithubLatestReleaseUrl 'Jax-Core' 'YourFlyouts' '.rmskin'
-    $name = $installerUrl -replace '^.+\/([^\/]+)\.[^\.]+?$','$1'
-    (New-Object System.Net.WebClient).DownloadFile($installerUrl, "$env:TMP\$name.zip")
+    $name = Get-GithubLatestRelease "wvzxn/YourFlyouts" -zip -getname
+    Get-GithubLatestRelease "wvzxn/YourFlyouts" -zip -dl -dest $env:TMP
 
     #   Manual Install
-    Expand-Archive ".\$name.zip"
-    Remove-Item ".\$name.zip" -Force
-    Copy-Item ".\$name\Skins\YourFlyouts" -Destination "$env:USERPROFILE\Documents\Rainmeter\Skins\YourFlyouts" -Recurse -Force
-    foreach ($plugin in (Get-ChildItem ".\$name\Plugins\*\*"))
+    Expand-Archive (Join-Path $env:TMP $name) $env:TMP
+    Remove-Item (Join-Path $env:TMP $name) -Force
+    $dir = (Get-ChildItem $env:TMP -Filter "*wvzxn*yourflyouts*" -Directory | `
+        Sort-Object Datum | Select-Object -First 1).FullName
+
+    foreach ($plugin in (Get-ChildItem (Join-Path $dir "Plugins\*\*")))
     {
         $pluginVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($plugin.FullName).FileVersion
-        $pluginBit = $plugin.FullName -replace '^.+\\(.+?)\\.+?$','$1'
-        $newPath = "$env:USERPROFILE\Documents\Rainmeter\Skins\@Vault\Plugins\$($plugin.BaseName)\$pluginVersion\$pluginBit"
+        $pluginBit = $plugin.FullName -replace "^.+\\(.+?)\\.+?`$","`$1"
+        $newPath = Join-Path $env:USERPROFILE `
+            "Documents\Rainmeter\Skins\@Vault\Plugins\$($plugin.BaseName)\$pluginVersion\$pluginBit"
         New-Item $newPath -ItemType Directory -Force
         Copy-Item $plugin -Destination $newPath -Force
-        if ($pluginBit -eq "64bit")
+        if ($pluginBit -match "64bit")
         {
-            New-Item "$env:APPDATA\Rainmeter\Plugins" -ItemType Directory -Force
-            Copy-Item $plugin -Destination "$env:APPDATA\Rainmeter\Plugins" -Force
+            New-Item (Join-Path $env:APPDATA "Rainmeter\Plugins") -ItemType Directory -Force
+            Copy-Item $plugin -Destination (Join-Path $env:APPDATA "Rainmeter\Plugins") -Force
         }
     }
-    Remove-Item ".\$name" -Recurse -Force
+    Remove-Item (Join-Path $dir "Plugins") -Recurse -Force
+    Move-Item $dir -Destination (Join-Path $env:USERPROFILE "Documents\Rainmeter\Skins\YourFlyouts") -Force
 }
 
 function YFSetWin11
@@ -139,8 +147,8 @@ function YFSetWin11
         [string]$Path
     )
 
-    $Vars = "$Path\@Resources\Vars.inc"
-    $Win11 = "$Path\Main\Vars\Win11.inc"
+    $Vars = Join-Path $Path "@Resources\Vars.inc"
+    $Win11 = Join-Path $Path "Main\Vars\Win11.inc"
 
     #   General Layout
     EditIniValues $Vars (
@@ -175,40 +183,49 @@ function YFSetWin11Colors
         [bool]$Dark
     )
 
-    $Win11 = "$Path\Main\Vars\Win11.inc"
+    $Win11 = Join-Path $Path "Main\Vars\Win11.inc"
 
     #   Win11 Skin appearance
     $Primary = if ($Dark) { "40,35,42" } else { "230,225,235" }
     $Font = if ($Dark) { "255,255,255" } else { "0,0,0" }
     $Font2 = if ($Dark) { "125,125,125" } else { "150,150,150" }
     EditIniValues $Win11 (
-    "PrimaryColor","$Primary",
-    "FontColor","$Font",
-    "FontColor2","$Font2")
+        "PrimaryColor","$Primary",
+        "FontColor","$Font",
+        "FontColor2","$Font2")
 }
+
+
 
 #   Rainmeter check
 $RMPath = (Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Rainmeter" -ErrorAction SilentlyContinue)."(default)"
-if ( !$RMPath ) { $RMPath = "$env:PROGRAMFILES\Rainmeter" }
-if ( !(Test-Path "$RMPath\Rainmeter.exe") )
+if ( !$RMPath ) { $RMPath = Join-Path $env:PROGRAMFILES "Rainmeter" }
+if ( !(Test-Path (Join-Path $RMPath "Rainmeter.exe")) )
 {
+    if (CheckInternetConnection) { Import } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "Rainmeter not found. Download and install now?"
     if ( $result ) { RMInstaller } else { return }
 }
 
 #   Start Rainmeter.exe
-if ( !(Get-Process "rainmeter" -ErrorAction SilentlyContinue) ) { Start-Process "$RMPath\Rainmeter.exe"; Start-Sleep 1 }
+if ( !(Get-Process "rainmeter" -ErrorAction SilentlyContinue) )
+{
+    Start-Process (Join-Path $RMPath "Rainmeter.exe")
+    Start-Sleep 1
+}
+
 
 #   YourFlyouts2 check
-$YFPath = "$env:USERPROFILE\Documents\Rainmeter\Skins\YourFlyouts"
+$YFPath = Join-Path $env:USERPROFILE "Documents\Rainmeter\Skins\YourFlyouts"
 if ( !(Test-Path $YFPath) )
 {
+    if (CheckInternetConnection) { Import } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "YourFlyouts2 not found. Download and install now?"
     if ($result) { yourFlyoutsInstaller; YFSetWin11 $YFPath } else { return }
 }
 
 #   YourFlyouts2 Win11 Skin setup (Light/Dark)
 YFSetWin11Colors $YFPath $Dark
-. "$RMPath\Rainmeter.exe" !RefreshApp
+Start-Process (Join-Path $RMPath "Rainmeter.exe") "!RefreshApp"
 Start-Sleep -Milliseconds 500
-. "$RMPath\Rainmeter.exe" !ActivateConfig "YourFlyouts\Main"
+Start-Process (Join-Path $RMPath "Rainmeter.exe") "!ActivateConfig", "YourFlyouts\Main"

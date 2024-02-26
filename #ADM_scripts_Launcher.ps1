@@ -82,7 +82,7 @@ if ($Manual) { "Src: Manual" }
 if ($SystemResume) { "Src: SystemResume" }
 if ($SystemUnlock) { "Src: SystemUnlock" }
 
-Start-Sleep -m 500
+Start-Sleep -Milliseconds 500
 
 #   LOG: Doubled instance check v1 (Lock file check), if true then exit
 if (CheckMulti) { "================== Multi =================="; return }
@@ -92,12 +92,14 @@ PreventDoubleInstance -Output
 
 RestartExplorer
 
-#   Run each script in '#scripts' dir, except '#blabla.ps1'
+#   Run each script in the '#scripts' dir, except '#blabla.ps1'
 if ($Dark) { $scriptArgs = " -Dark" }
-$scripts = Get-ChildItem ".\#scripts\*.ps1" -File | Where-Object { $_.name -notmatch '^\#' }
+$scripts = Get-ChildItem ".\*\Theme_*.ps1" -File
 foreach ($script in $scripts)
 {
-    Start-Process PowerShell -WindowStyle Hidden -ArgumentList "-ExecutionPolicy Bypass -File", ($script.fullname + $scriptArgs)
+    Start-Process PowerShell -Wait -WindowStyle Hidden `
+        -ArgumentList "-ExecutionPolicy Bypass -File", ($script.fullname + $scriptArgs)
+    
     #   LOG: [script] + Arguments
     "[#scripts\$($script.name)]" + $scriptArgs
 }

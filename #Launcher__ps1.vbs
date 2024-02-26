@@ -1,3 +1,4 @@
+' Rename this to <something.vbs> to launch <something.ps1>
 Set objShell = CreateObject("WScript.Shell")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 name = objFSO.GetBaseName(WScript.ScriptName) & ".ps1"
