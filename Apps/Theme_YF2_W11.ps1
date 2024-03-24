@@ -30,12 +30,11 @@ param
 
 
 
-function ImportFuncs
+function ReturnImport
 {
     #   Get-GithubLatestRelease.ps1
-    Invoke-WebRequest -UseBasicParsing `
-    "https://gist.githubusercontent.com/wvzxn/e7872773f4c44671ca37fad7ca3912b7/raw/Get-GithubLatestRelease.ps1" | `
-    Invoke-Expression
+    return Invoke-WebRequest -UseBasicParsing `
+    "https://gist.githubusercontent.com/wvzxn/e7872773f4c44671ca37fad7ca3912b7/raw/Get-GithubLatestRelease.ps1"
 }
 function msgBox
 {
@@ -202,7 +201,7 @@ $RMPath = (Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Rainmeter" -ErrorAction 
 if ( !$RMPath ) { $RMPath = Join-Path $env:PROGRAMFILES "Rainmeter" }
 if ( !(Test-Path (Join-Path $RMPath "Rainmeter.exe")) )
 {
-    if (CheckInternetConnection) { ImportFuncs } else { return }
+    if (CheckInternetConnection) { ReturnImport | Invoke-Expression } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "Rainmeter not found. Download and install now?"
     if ( $result ) { RMInstaller } else { return }
 }
@@ -219,9 +218,9 @@ if ( !(Get-Process "rainmeter" -ErrorAction SilentlyContinue) )
 $YFPath = Join-Path $env:USERPROFILE "Documents\Rainmeter\Skins\YourFlyouts"
 if ( !(Test-Path $YFPath) )
 {
-    if (CheckInternetConnection) { ImportFuncs } else { return }
+    if (CheckInternetConnection) { ReturnImport | Invoke-Expression } else { return }
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "YourFlyouts2 not found. Download and install now?"
-    if ($result) { yourFlyoutsInstaller; YFSetWin11 $YFPath } else { return }
+    if ($result) { YFInstaller; YFSetWin11 $YFPath } else { return }
 }
 
 #   YourFlyouts2 Win11 Skin setup (Light/Dark)
