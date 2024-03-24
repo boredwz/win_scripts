@@ -9,11 +9,12 @@ Set-Location $PSScriptRoot
 Start-Sleep -Seconds 8
 & "$env:LOCALAPPDATA\Programs\AutoDarkMode\adm-app\AutoDarkModeSvc.exe"
 
-if (!$isCharging)
+if ($isCharging)
 {
-    & ".\Controls\BluetoothControl.ps1" Off
-    return
+    & ".\Apps\SyncTrayzor.ps1" Start
+    & ".\Apps\Spotify.ps1" Start
 }
-
-& ".\Apps\SyncTrayzor.ps1" Start
-& ".\Apps\Spotify.ps1" Start
+else
+{
+    #& ".\Controls\BluetoothControl.ps1" Off
+}

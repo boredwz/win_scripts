@@ -1,6 +1,6 @@
 param([ValidateSet("Start", "Stop")][string]$Command = "Start",[switch]$Force)
 
-$gps = Get-Process -Name "SyncTrayzor"
+$gps = Get-Process -Name "SyncTrayzor" -ErrorAction SilentlyContinue
 
 if ($Command -match "Start")
 {

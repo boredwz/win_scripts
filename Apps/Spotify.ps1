@@ -77,7 +77,7 @@ public static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
 
-$gps = Get-Process -Name "Spotify"
+$gps = Get-Process -Name "Spotify" -ErrorAction SilentlyContinue
 
 if ($Command -match "Start")
 {
