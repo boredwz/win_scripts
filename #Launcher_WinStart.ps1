@@ -3,17 +3,17 @@
 $isCharging = (Get-CIMInstance Win32_Battery).BatteryStatus -ne 1
 Set-Location $PSScriptRoot
 
-& ".\EQ APO (PhilipsOff + VolDown).lnk"
-& ".\Rainmeter.lnk"
-& ".\Sandboxie.lnk"
+& "$env:PROGRAMFILES\EqualizerAPO\config\#EQ.vbs" -PhilipsOff -VolumeDown
+& "$env:PROGRAMFILES\Rainmeter\Rainmeter.exe"
+& "$env:PROGRAMFILES\Sandboxie\SbieCtrl.exe"
 Start-Sleep -Seconds 8
-& ".\AutoDarkMode.lnk"
+& "$env:LOCALAPPDATA\Programs\AutoDarkMode\adm-app\AutoDarkModeSvc.exe"
 
 if (!$isCharging)
 {
-    & ".\BluetoothControl.ps1" Off
+    & ".\Controls\BluetoothControl.ps1" Off
     return
 }
 
-& ".\SyncTrayzor.ps1" Start
-& ".\Spotify.ps1" Start
+& ".\Apps\SyncTrayzor.ps1" Start
+& ".\Apps\Spotify.ps1" Start

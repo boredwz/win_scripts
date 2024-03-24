@@ -5,6 +5,6 @@ Set-Location $PSScriptRoot
 $startStop = if ($isCharging) {"Start"} else {"Stop"}
 $onOff = if ($isCharging) {"On"} else {"Off"}
 
-& ".\BluetoothControl.ps1" $onOff
-& ".\SyncTrayzor.ps1" $startStop
-& ".\Spotify.ps1" $startStop -force
+& ".\Controls\BluetoothControl.ps1" $onOff
+& ".\Apps\SyncTrayzor.ps1" $startStop
+& ".\Apps\Spotify.ps1" $startStop -force
