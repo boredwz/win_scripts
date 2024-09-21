@@ -1,0 +1,26 @@
+Enabled: false
+Component:
+  Scripts:
+  - Name: "== PS (BatteryStatusChanged) =="
+    Command: powershell
+    WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
+    ArgsLight: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Light, -Trigger, BatteryStatusChanged]
+    ArgsDark: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Dark, -Trigger, BatteryStatusChanged]
+    AllowedSources: [BatteryStatusChanged]
+    TimeoutMillis: 30000
+
+  - Name: "== PS (Manual) =="
+    Command: powershell
+    WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
+    ArgsLight: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Light, -Trigger, Manual]
+    ArgsDark: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Dark, -Trigger, Manual]
+    AllowedSources: [Manual]
+    TimeoutMillis: 30000
+    
+  - Name: "== PS (TimeSwitchModule) =="
+    Command: powershell
+    WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
+    ArgsLight: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Light, -Trigger, TimeSwitchModule]
+    ArgsDark: [-nop, -ep, bypass, -f, .\ps_adm_helper.ps1, -Theme, Dark, -Trigger, TimeSwitchModule]
+    AllowedSources: [TimeSwitchModule]
+    TimeoutMillis: 30000

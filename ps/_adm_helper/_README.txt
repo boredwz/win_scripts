@@ -1,0 +1,1 @@
+Place .ps1 scripts to be executed in adm_helper in this folder
