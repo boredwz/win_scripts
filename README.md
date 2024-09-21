@@ -27,8 +27,8 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 
 ```powershell
 cd $env:USERPROFILE;`
-gci -dir|?{($_.name -eq "win_scripts") -or ($_.name -eq "win_scripts-master")}|ri -for;`
-gci -file|?{$_.name -eq "m.zip"}|ri -for;`
+gci -dir|?{($_.name -eq "win_scripts") -or ($_.name -eq "win_scripts-master")}|ri -rec -for;`
+gci -file|?{$_.name -eq "m.zip"}|ri -recommended -for;`
 iwr https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip -o m.zip;`
 expand-archive m.zip -dest ".\";`
 ri m.zip;`
