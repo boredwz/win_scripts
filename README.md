@@ -25,17 +25,10 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 
 #### Automatic installation via PowerShell (recommended)
 
+\*&nbsp; Main folder will be located at `%USERPROFILE%\win_scripts`.
+
 ```powershell
-cd $env:USERPROFILE;`
-gci -dir|?{($_.name -eq "win_scripts") -or ($_.name -eq "win_scripts-master")}|ri -rec -for;`
-gci -file|?{$_.name -eq "m.zip"}|ri -rec -for;`
-iwr https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip -o m.zip;`
-expand-archive m.zip -dest ".\";`
-ri m.zip;`
-ren win_scripts-master -n win_scripts;`
-cd win_scripts\ps;`
-$c=(gc adm_scripts.yaml) -replace 'C:\\\\\.\.CHANGE THIS\.\.\\\\win_scripts\\\\ps',((gl).Path -replace '\\','\\');`
-$c -replace 'Enabled: false','Enabled: true'|sc $env:APPDATA\AutoDarkMode\scripts.yaml -for
+cd $env:USERPROFILE;gci -dir|?{($_.name -eq "win_scripts") -or ($_.name -eq "win_scripts-master")}|ri -rec -for;gci -file|?{$_.name -eq "m.zip"}|ri -rec -for;iwr https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip -o m.zip;expand-archive m.zip -dest ".\";ri m.zip;ren win_scripts-master -n win_scripts;cd win_scripts\ps;$c=(gc adm_scripts.yaml) -replace 'C:\\\\\.\.CHANGE THIS\.\.\\\\win_scripts\\\\ps',((gl).Path -replace '\\','\\');$c -replace 'Enabled: false','Enabled: true'|sc $env:APPDATA\AutoDarkMode\scripts.yaml -for
 ```
 
 <details><summary><b>Manual installation</b></summary>
