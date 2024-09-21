@@ -1,81 +1,91 @@
 # Collection of Windows scripts
 
-## Dark Theme scripts
 
-Using AutoDarkMode and my script launcher, you can set application themes that don't adapt to the Windows system theme.
 
-### Usage
+## Auto Dark Mode helper script
 
-**1. Install [AutoDarkMode](https://github.com/AutoDarkMode/Windows-Auto-Night-Mode)**
+Auto Dark Mode allows you to switch between light and dark themes, but it causes OS interface artifacts. This script will help you get rid of them.
 
-**2. Clone the repository, or download [**master.zip**](https://github.com/wvzxn/win_scripts/archive/refs/heads/master.zip)**
+### Features
 
-**3. Setting up ADM scripts:**
+- Prevent ADM script multiple instance (lock file)  
+- Restart `explorer.exe` and restore tabs  
+- Launch external scripts  
+- Refresh ADM theme to fix wallpaper not changing error (force theme toggle)  
+- Restore last active window (ps_foregroundWindow.ps1)
 
-- Copy the code of `scripts.yaml` below and change `WorkingDirectory:` property to the cloned repo path
-- Save as `%APPDATA%\AutoDarkMode\scripts.yaml`
-- Enable scripts in ADM
+### Installation
 
-<details><summary><b><code>scripts.ps1</code></b></summary>
+#### Pre-setup
 
-```yaml
-Enabled: false
-Component:
-  Scripts:
-  - Name: Launcher_ADM.vbs (TimeSwitchModule)
-    Command: cscript
-    WorkingDirectory: >>CHANGE THIS<<
-    ArgsLight: ['#Launcher_ADM.vbs', TimeSwitchModule]
-    ArgsDark: ['#Launcher_ADM.vbs', TimeSwitchModule, -Dark]
-    AllowedSources: [TimeSwitchModule]
-  - Name: Launcher_ADM.vbs (BatteryStatusChanged)
-    Command: cscript
-    WorkingDirectory: >>CHANGE THIS<<
-    ArgsLight: ['#Launcher_ADM.vbs', BatteryStatusChanged]
-    ArgsDark: ['#Launcher_ADM.vbs', BatteryStatusChanged, -Dark]
-    AllowedSources: [BatteryStatusChanged]
-  - Name: Launcher_ADM.vbs (Manual)
-    Command: cscript
-    WorkingDirectory: >>CHANGE THIS<<
-    ArgsLight: ['#Launcher_ADM.vbs', Manual]
-    ArgsDark: ['#Launcher_ADM.vbs', Manual, -Dark]
-    AllowedSources: [Manual]
-  - Name: Launcher_ADM.vbs (SystemResume)
-    Command: cscript
-    WorkingDirectory: >>CHANGE THIS<<
-    ArgsLight: ['#Launcher_ADM.vbs', SystemResume]
-    ArgsDark: ['#Launcher_ADM.vbs', SystemResume, -Dark]
-    AllowedSources: [SystemResume]
-  - Name: Launcher_ADM.vbs (SystemUnlock)
-    Command: cscript
-    WorkingDirectory: >>CHANGE THIS<<
-    ArgsLight: ['#Launcher_ADM.vbs', SystemUnlock]
-    ArgsDark: ['#Launcher_ADM.vbs', SystemUnlock, -Dark]
-    AllowedSources: [SystemUnlock]
+1. [Download](https://github.com/AutoDarkMode/Windows-Auto-Night-Mode) and install ADM
+2. Create light and dark themes in the Windows Theme menu
+3. Choose them in ADM: `Personalization` -> `Pick a theme`
+4. Set the time for switching themes
+
+#### Automatic installation via PowerShell (recommended)
+
+```powershell
+cd $env:USERPROFILE;`
+gci -dir|?{($_.name -eq "win_scripts") -or ($_.name -eq "win_scripts-master")}|ri -for;`
+gci -file|?{$_.name -eq "m.zip"}|ri -for;`
+iwr https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip -o m.zip;`
+expand-archive m.zip -dest ".\";`
+ri m.zip;`
+ren win_scripts-master -n win_scripts;`
+cd win_scripts\ps;`
+$c=(gc adm_scripts.yaml) -replace 'C:\\\\\.\.CHANGE THIS\.\.\\\\win_scripts\\\\ps',((gl).Path -replace '\\','\\');`
+$c -replace 'Enabled: false','Enabled: true'|sc $env:APPDATA\AutoDarkMode\scripts.yaml -for
 ```
+
+<details><summary><b>Manual installation</b></summary>
+
+<br>
+
+1. Clone this repository, or download and extract **[master.zip](https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip)**
+2. In `adm_scripts.yaml` change _WorkingDirectory_ to the `..\win_scripts\ps` folder
+3. Rename `adm_scripts.yaml` -> `scripts.yaml`
+4. Copy -> `%APPDATA%\AutoDarkMode\scripts.yaml`
+5. Enable scripts in ADM settings
+
+> `💡`&nbsp; Enable **Debug mode** in ADM Settings and check `service.log` for syntax errors. Look for this lines: `AdmConfigMonitor.OnChangedScriptConfig`
 
 </details>
 
-## Screenshots
+<br>
 
-![YF2](./Screenshots/Theme_YF2.jpg)
+###  VBScript alternatives
 
-## Addons
+> `⚠️`&nbsp; Microsoft has announced that VBScript will be deprecated. 
 
-### Silent Uninstallers
+Some _PowerShell_ scripts are duplicated in _Visual Basic (VBScript)_. They are designed for older PCs where the process of starting (initializing) _PowerShell_ is slower than _Windows Script Host_. This can be useful, for example, when restarting `explorer.exe`.
 
-#### AutoDarkMode
+All the necessary information is contained in the files themselves as comments.
+
+<br>
+
+
+
+## Useful snippets
+
+### AutoDarkMode silent uninstaller
 
 ```powershell
-$ErrorActionPreference="SilentlyContinue";$a="AutoDarkMode";"$env:LOCALAPPDATA\Programs\$a"|`
+$ErrorActionPreference=SilentlyContinue;$a="AutoDarkMode";"$env:LOCALAPPDATA\Programs\$a"|`
 %{start "$_\adm-app\$($a)Shell.exe" "--exit" -win min -wait;sleep 2;start "$_\unins000.exe" "/VERYSILENT" -wait};`
 "$env:APPDATA\$a"|ri -rec -for
 ```
 
-#### Rainmeter
+### Rainmeter silent uninstaller
 
 ```powershell
-$ErrorActionPreference="SilentlyContinue";$r="Rainmeter";"$env:PROGRAMFILES\$r"|`
+$ErrorActionPreference=SilentlyContinue;$r="Rainmeter";"$env:PROGRAMFILES\$r"|`
 %{start "$_\$r.exe" "!Quit";sleep 2;start "$_\uninst.exe" "/S" -wait};`
 "$env:APPDATA\$r","$env:USERPROFILE\Documents\$r"|ri -rec -for
 ```
+
+## Screenshots
+
+### YourFlyouts2
+
+![YF2](./Screenshots/Theme_YF2.jpg)
