@@ -220,7 +220,7 @@ Sub RestoreActiveWindow()
     Set objExec = objShell.Exec(command)
     result = objExec.StdOut.ReadLine()
     Set objExec = Nothing
-    If StrComp(result, "True", vbTextCompare) Then Call Echoo(" > Restore active window (ps\foreground_window.ps1)", True)
+    If StrComp(result, "True", vbTextCompare) = 0 Then Call Echoo(" > Restore active window (ps\foreground_window.ps1)", True)
 End Sub
 
 
