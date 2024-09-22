@@ -73,7 +73,16 @@ End Sub
 ' Lock file check: if exists, then exit; if not then create and set auto-delete script (30s)
 Sub LockCheck(lock)
     If (objFSO.FileExists(lock)) Then Call WScript.Quit()
-    Call objFSO.CreateTextFile(lock, True)
+    On Error Resume Next
+    Call objFSO.CreateTextFile(lock, False)
+    If Err.Number <> 0 Then
+        Call Echoo("", False)
+        Call Echoo("", False)
+        Call Echoo("==== multi instance ====", False)
+        Call Echoo("", False)
+        Call WScript.Quit()
+    End If
+    On Error Goto 0
     command = "sleep 30;'" & lock & "'|?{test-path $_ -type leaf}|ri -for"
     Call objShell.Run("powershell.exe -noni -nol -nop -ep bypass -c """ & command & """", 0, False)
 End Sub
@@ -206,8 +215,10 @@ Sub RestoreActiveWindow()
     If Not admRefreshed Then Call WScript.Sleep(7000)
     command = "powershell.exe -noni -nol -nop -ep bypass -f " & _
         """" & objFSO.GetAbsolutePathName("ps\foreground_window.ps1") & """" & " -set " & activeWinId
-    Call Echoo(" > Restore active window (ps\foreground_window.ps1)", True)
-    Call objShell.Run(command, 0, False)
+    Set objExec = objShell.Exec(command)
+    result = objExec.StdOut.ReadLine()
+    Set objExec = Nothing
+    If StrComp(result, "True", vbTextCompare) Then Call Echoo(" > Restore active window (ps\foreground_window.ps1)", True)
 End Sub
 
 
@@ -248,6 +259,7 @@ End Function
 
 ' [bool] Check if Windows theme is set to light
 Function IsWindowsThemeLight()
+    On Error Resume Next
     lightTheme = objShell.RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\AppsUseLightTheme")
     On Error GoTo 0
     If lightTheme = 1 Then
