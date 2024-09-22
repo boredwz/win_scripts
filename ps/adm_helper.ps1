@@ -39,6 +39,8 @@ param (
     [Alias("noscr")][switch]$NoScripts
 )
 
+
+
 class LockFile {
     [string]$Path
     [int]$TimeoutProcessId
@@ -53,8 +55,11 @@ class LockFile {
         return Test-Path $this.Path -PathType Leaf
     }
 
-    [void]Create() {
-        $null = New-Item $this.Path -ItemType File -Force
+    [bool]Create() {
+        if (Test-Path $this.Path -PathType Leaf) {return $false}
+        try {$null = New-Item $this.Path -ItemType File -ErrorAction Continue}
+        catch {return $false}
+        
         if ($this.EnableTimeout) {
             $Command = "sleep $($this.TimeoutSeconds);'$($this.Path)'|%{if(test-path `$_ -type leaf){ri `$_ -for}}"
             $this.TimeoutProcessId = (Start-Process powershell `
@@ -62,6 +67,7 @@ class LockFile {
                 -WindowStyle Hidden `
                 -ArgumentList "-noni -nol -nop -ep bypass -c", $Command).Id
         }
+        return $true
     }
 
     [void]Delete() {
@@ -127,7 +133,9 @@ Set-Location $PSScriptRoot
 
 $lockFile = [LockFile]::New((Join-Path $PSScriptRoot "$($MyInvocation.MyCommand.Name)_lockfile"))
 $lockFile.EnableTimeout = $true
-if ($lockFile.Exists()) {return} else {$lockFile.Create()}
+if ($lockFile.Exists()) {" ";" ";"==== multi instance ====";" "; return} else {
+    if (!($lockFile.Create())) {" ";" ";"==== multi instance ====";" "; return}
+}
 
 Log " " -WithoutDate
 Log " " -WithoutDate
