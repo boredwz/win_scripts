@@ -90,8 +90,8 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 & ".\adm_helper.ps1" -Restart -NoAdmRefresh
 
 # VBScript
-#  SYNTAX: /<Parameter>:[Value]
-cscript //nologo "adm_helper.vbs" /theme:dark /trigger:Any /restartmode:minimized
+#  SYNTAX: /<Parameter>[:Value]
+cscript //nologo "adm_helper.vbs" /theme:dark /trigger:Any /restartmode:minimized /restart
 ```
 
 <br>
