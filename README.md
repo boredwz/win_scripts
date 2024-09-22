@@ -129,11 +129,11 @@ Accent color is imported from the system.
 
 ### qBittorrent (theme_qbittorrent.ps1)
 
-Enable <custom UI Theme> and then restart qBittorrent.
+Enable `custom UI Theme` and then restart qBittorrent.
 
 **Pre-setup:**
 1. Download any dark theme and put somewhere
-2. In `qBittorrent` Settings enable and select `custom UI Theme`
+2. In qBittorrent settings enable and select `custom UI Theme`
 3. Uncheck:
     - `Show qBittorrent in notification area`
     - `Confirmation on exit when torrents are active`
