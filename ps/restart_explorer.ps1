@@ -35,12 +35,12 @@ Any window state -> Minimized.
 Aliases: "Min", "Minimize", "Minimized".
 
 .EXAMPLE
-PS C:\> & ".\RestartExplorer"
+PS C:\> & ".\RestartExplorer.ps1"
 *explorer.exe restarting...*
 *tabs restoring...*
 
 .EXAMPLE
-PS C:\> & ".\RestartExplorer" -minimized
+PS C:\> & ".\RestartExplorer.ps1" -minimized
 *explorer.exe restarting...*
 *tabs restoring minimized...*
 #>
