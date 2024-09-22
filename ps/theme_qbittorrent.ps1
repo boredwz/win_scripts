@@ -1,7 +1,7 @@
 #  qBittorrent Theme Change (PowerShell)
 #  
 #  [Author]
-#    wvzxn | https://github.com/wvzxn
+#    boredwz | https://github.com/boredwz
 #  
 #  [Credits]
 #    qBittorrent | https://github.com/qbittorrent/qBittorrent
