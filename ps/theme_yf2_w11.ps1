@@ -194,7 +194,8 @@ function YFSetWin11Colors
 #   Rainmeter check
 $RMPath = (Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Rainmeter" -ErrorAction SilentlyContinue)."(default)"
 if ( !$RMPath ) { $RMPath = Join-Path $env:PROGRAMFILES "Rainmeter" }
-if ( !(Test-Path (Join-Path $RMPath "Rainmeter.exe")) )
+Set-Location $RMPath
+if ( !(Test-Path (".\Rainmeter.exe")) )
 {
     if (!(Test-Connection "www.google.com" -Count 2 -Quiet)) {return}
     $result = msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "Rainmeter not found. Download and install now?"
@@ -204,7 +205,7 @@ if ( !(Test-Path (Join-Path $RMPath "Rainmeter.exe")) )
 #   Start Rainmeter.exe
 if ( !(Get-Process "rainmeter" -ErrorAction SilentlyContinue) )
 {
-    Start-Process (Join-Path $RMPath "Rainmeter.exe")
+    Start-Process ".\Rainmeter.exe" -WorkingDirectory $RMPath
     Start-Sleep 1
 }
 
@@ -220,9 +221,10 @@ if ( !(Test-Path $YFPath) )
 
 #   YourFlyouts2 Win11 Skin setup (Light/Dark)
 YFSetWin11Colors $YFPath $Dark
-Start-Process (Join-Path $RMPath "Rainmeter.exe") "!RefreshApp"
+Set-Location $RMPath
+Start-Process ".\Rainmeter.exe" "!RefreshApp"
 Start-Sleep -Milliseconds 500
-Start-Process (Join-Path $RMPath "Rainmeter.exe") "!ActivateConfig", "YourFlyouts\Main"
+Start-Process ".\Rainmeter.exe" "!ActivateConfig", "YourFlyouts\Main"
 
 if ($result) {
     msgBox "(AutoDarkMode #script) YourFlyouts2 Script" "Successfully installed!"
