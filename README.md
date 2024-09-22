@@ -43,7 +43,7 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 4. Copy -> `%APPDATA%\AutoDarkMode\scripts.yaml`
 5. Enable scripts in ADM settings
 
-> `💡`&nbsp; Enable **Debug mode** in ADM Settings and check `service.log` for syntax errors. Look for this lines: `AdmConfigMonitor.OnChangedScriptConfig`
+> `💡`&nbsp; Enable **Debug mode** in ADM Settings and check `service.log` for syntax errors. Look for lines like this: `AdmConfigMonitor.OnChangedScriptConfig`
 
 </details>
 
