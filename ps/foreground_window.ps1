@@ -13,9 +13,11 @@ public class User32 {
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")]
-    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    [DllImport("user32.dll")]
     public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+}
+public class WinAPI {
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool IsWindow(IntPtr hWnd);
 }
 "@
 
@@ -25,10 +27,10 @@ if ($GetHwnd) {
     if ($Activate -notmatch '^\d+$') {return $false}
     try {
         $hwnd = [int]$Activate
-        $null = [User32]::ShowWindow($hwnd, 9)  # 9 = SW_RESTORE
-        $null = [User32]::keybd_event(0xA4, 0, 0, [UIntPtr]::Zero)  # Alt key down
+        if (!([WinAPI]::IsWindow([IntPtr]::new($hwnd)))) {return $false} # Is not exist
+        $null = [User32]::keybd_event(0x11, 0, 0, [UIntPtr]::Zero)  # Ctrl key down
         $result = [User32]::SetForegroundWindow($hwnd)
-        $null = [User32]::keybd_event(0xA4, 0, 2, [UIntPtr]::Zero)  # Alt key up
+        $null = [User32]::keybd_event(0x11, 0, 2, [UIntPtr]::Zero)  # Ctrl key up
         return $result
     } catch {}
     return $false
