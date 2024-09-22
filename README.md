@@ -19,9 +19,8 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 #### Pre-setup
 
 1. [Download](https://github.com/AutoDarkMode/Windows-Auto-Night-Mode) and install ADM
-2. Create light and dark themes in the Windows Theme menu
-3. Choose them in ADM: `Personalization` -> `Pick a theme`
-4. Set the time for switching themes
+2. Enable automatic theme switching
+3. Enable `Always refresh DWM on theme switch` in Settings
 
 #### Automatic installation via PowerShell (recommended)
 
