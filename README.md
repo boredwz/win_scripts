@@ -12,7 +12,7 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 - Restart `explorer.exe` and restore tabs  
 - Launch external scripts  
 - Refresh ADM theme to fix wallpaper not changing error (force theme toggle)  
-- Restore last active window (ps_foregroundWindow.ps1)
+- Restore last active window (ps\\foregroundWindow.ps1)
 
 ### Installation
 
@@ -31,6 +31,8 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 
 - Use this code to _update_ or _re-install_
 - Installation path: `%USERPROFILE%\win_scripts`
+
+<br>
 
 <details><summary><b>Manual installation</b></summary>
 
@@ -107,6 +109,39 @@ All the necessary information is contained in the files themselves as comments.
 
 
 
+## Theme scripts
+
+### Usage example
+
+```powershell
+& ".\theme_yf_w11.ps1"          # Light theme
+& ".\theme_yf_w11.ps1" -Dark    # Dark theme
+```
+
+### YourFlyouts2 (theme_yf2_w11.ps1)
+
+- Check for `Rainmeter` and `YF2` installed
+- Set Win11 skin to light or dark
+
+Accent color is imported from the system.
+
+![YF2](./Screenshots/Theme_YF2.jpg)
+
+### qBittorrent (theme_qbittorrent.ps1)
+
+Enable <custom UI Theme> and then restart qBittorrent.
+
+**Pre-setup:**
+1. Download any dark theme and put somewhere
+2. In `qBittorrent` Settings enable and select `custom UI Theme`
+3. Uncheck:
+    - `Show qBittorrent in notification area`
+    - `Confirmation on exit when torrents are active`
+
+<br>
+
+
+
 ## Useful snippets
 
 ### (PowerShell) AutoDarkMode silent uninstaller
@@ -120,9 +155,3 @@ All the necessary information is contained in the files themselves as comments.
 ```powershell
 "";function w($x){Write-Host "> $x"-f 3};$r="Rainmeter";if($null=gps $r -ea 0){w "Shutdown <$r>...";saps "$env:PROGRAMFILES\$r\$r.exe" "!Quit";sleep 2};w "Uninstall <$r>...";saps "$env:PROGRAMFILES\$r\uninst.exe" "/S" -wait;w "Remove leftovers";"$env:APPDATA\$r","$env:USERPROFILE\Documents\$r"|ri -r -for;""
 ```
-
-## Screenshots
-
-### YourFlyouts2
-
-![YF2](./Screenshots/Theme_YF2.jpg)
