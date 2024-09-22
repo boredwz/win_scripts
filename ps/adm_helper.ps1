@@ -1,7 +1,7 @@
 #  adm_helper (PowerShell)
 #  
 #  [Author]
-#    boredwz | https://github.com/boredwz
+#    boredwz | https://github.com/boredwz/win_scripts
 #  
 #  [Info]
 #    - Prevent ADM script multiple instance (lock file)
@@ -11,16 +11,16 @@
 #    - Restore last active window
 #  
 #  [Usage]
-#    Command-line parameters:
-#      [-Theme] — Specify <Light/Dark>, if not specified then Windows Theme will be used
-#      [-Trigger] — Specify <ADM trigger name>
+#    Command-line paremeters:
+#      [-Theme <light/dark>] — Set theme, if not specified then Windows Theme will be used
+#      [-Trigger <adm trigger name>] — Set AutoDarkMode trigger
+#      [-RestartMode <normal/minimized>] — Set explorer.exe restart mode
 #      [-Restart] — Force restart explorer.exe
 #      [-NoAdmRefresh] — Do not refresh ADM theme
 #      [-NoScripts] — Do not launch external scripts (ps\_adm_helper\*.ps1)
-#      [-NoActivate] — Do not restore active window (foreground_window.ps1)
+#      [-NoActivate] — Do not restore last active window (ps\foreground_window.ps1)
 #    
 #    Examples:
-#      & ".\adm_helper.ps1"
 #      & ".\adm_helper.ps1" -Trigger TimeSwitchModule -Theme Dark -Restart
 #      & ".\adm_helper.ps1" Light BatteryStatusChanged -NoScripts -NoActivate
 #      & ".\adm_helper.ps1" -Restart -NoAdmRefresh
@@ -28,14 +28,15 @@
 #requires -Version 5
 
 param (
-    [ValidateSet("Light","Dark")][Alias("th")][string]$Theme,
+    [ValidateSet("Light","Dark","l","d")][Alias("t","th")][string]$Theme,
     [ValidateSet("Any","Api","BatteryStatusChanged","ExternalThemeSwitch","Manual",
         "NightLightTrackerModule","Startup","SystemResume","SystemUnlock",
         "TimeSwitchModule")][Alias("tr")][string]$Trigger,
+    [ValidateSet("Normal","Minimized","Minimize","nor","min","n","m")][Alias("restartm","rm")][string]$RestartMode,
+    [Alias("r","restart")][switch]$ForceRestart,
     [Alias("noadm")][switch]$NoAdmRefresh,
-    [Alias("noscr")][switch]$NoScripts,
     [Alias("noact")][switch]$NoActivate,
-    [Alias("r","restart")][switch]$ForceRestart
+    [Alias("noscr")][switch]$NoScripts
 )
 
 class LockFile {
@@ -132,7 +133,9 @@ Log " " -WithoutDate
 Log " " -WithoutDate
 Log "[==== $($MyInvocation.MyCommand.Name) ====]"
 
-$isThemeDark = if ($Theme) {$Theme -match "Dark"} else {-not (IsWindowsThemeLight)}
+$isThemeDark = if ($Theme) {$Theme -match "^(?:Dark|d)$"} else {-not (IsWindowsThemeLight)}
+$isRestartModeMinimized = $false
+if ($RestartMode) {$isRestartModeMinimized = ($RestartMode -match "^(?:Minimized?|min|m)$")}
 $strTheme = if ($isThemeDark) {"Dark"} else {"Light"}
 $doRestart = (($Trigger -eq "BatteryStatusChanged") -and $isThemeDark) -or $ForceRestart
 $doScripts = !$NoScripts
@@ -154,9 +157,9 @@ if ($doRestart) {
 
     Log " > Restart <explorer.exe> and restore tabs"
     if (Test-Path ".\restart_explorer.ps1" -PathType Leaf) {
-        & ".\restart_explorer.ps1"
+        if ($isRestartModeMinimized) {& ".\restart_explorer.ps1" -Minimize} else {& ".\restart_explorer.ps1"}
     } else {
-        RestartExplorer
+        if ($isRestartModeMinimized) {RestartExplorer -Minimize} else {RestartExplorer}
     }
 }
 

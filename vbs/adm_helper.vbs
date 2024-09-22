@@ -1,33 +1,33 @@
-'  vb_adm_helper (VBScript)
+'  adm_helper (VBScript)
 '  
 '  [Author]
-'    boredwz | https://github.com/boredwz
+'    boredwz | https://github.com/boredwz/win_scripts
 '  
 '  [Info]
 '    - Prevent ADM script multiple instance (lock file)
 '    - Restart explorer.exe and restore tabs
 '    - Launch external scripts
 '    - Refresh ADM theme to fix wallpaper not changing error (force theme toggle)
-'    - Restore last active window (ps\foreground_window.ps1)
+'    - Restore last active window
 '  
 '  [Usage]
 '    Command-line parameters:
-'      [/theme] — Specify <Light/Dark>, if not specified then Windows Theme will be used
-'      [/trigger] — Specify <ADM trigger name>
+'      [/theme:<light/dark>] — Set theme, if not specified then Windows Theme will be used
+'      [/trigger:<adm trigger name>] — Set AutoDarkMode trigger
+'      [/restartMode:<normal/minimized>] — Set explorer.exe restart mode
 '      [/restart] — Force restart explorer.exe
 '      [/noAdmRefresh] — Do not refresh ADM theme
-'      [/noScripts] — Do not launch external scripts (ps\theme_*.ps1)
-'      [/noActivate] — Do not restore last active window
+'      [/noScripts] — Do not launch external scripts (ps\_adm_helper\*.ps1)
+'      [/noActivate] — Do not restore last active window (ps\foreground_window.ps1)
 '    
 '    Examples:
-'      cscript //nologo adm_helper.vbs
 '      cscript //nologo adm_helper.vbs /trigger:TimeSwitchModule /theme:Dark /restart
 '      cscript //nologo adm_helper.vbs /theme:Light /trigger:BatteryStatusChanged /noScripts /noActivate
 '      cscript //nologo adm_helper.vbs /restart /noAdmRefresh
-        
 
 
-Dim trigger, isThemeDark, strTheme, doRestart, doRefreshAdm, doScripts, doActivateWin
+
+Dim trigger, isThemeDark, strTheme, isRestartModeMinimized, doRestart, doRefreshAdm, doScripts, doActivateWin
 Dim activeWinId, explorerRestarted, admRefreshed, psfwPath
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -80,25 +80,32 @@ End Sub
 
 ' Set param, argument variables
 Sub SetArguments()
+    Dim argTrigger, argTr, argTheme, argTh, argT, argRestartmode, argRm
     Set argsNamed = WScript.Arguments.Named
+    argTrigger = argsNamed.Item("trigger")
+    argTr = argsNamed.Item("tr")
+    argTheme = argsNamed.Item("theme")
+    argTh = argsNamed.Item("th")
+    argT = argsNamed.Item("t")
+    argRestartmode = argsNamed.Item("restartmode")
+    argRm = argsNamed.Item("rm")
 
     ' trigger
-    Dim argTrigger
-    argTrigger = argsNamed.Item("trigger")
-    If (StrComp(argTrigger, "Any", vbTextCompare) = 0) Then trigger = "Any"
-    If (StrComp(argTrigger, "Api", vbTextCompare) = 0) Then trigger = "Api"
-    If (StrComp(argTrigger, "BatteryStatusChanged", vbTextCompare) = 0) Then trigger = "BatteryStatusChanged"
-    If (StrComp(argTrigger, "ExternalThemeSwitch", vbTextCompare) = 0) Then trigger = "ExternalThemeSwitch"
-    If (StrComp(argTrigger, "Manual", vbTextCompare) = 0) Then trigger = "Manual"
-    If (StrComp(argTrigger, "NightLightTrackerModule", vbTextCompare) = 0) Then trigger = "NightLightTrackerModule"
-    If (StrComp(argTrigger, "Startup", vbTextCompare) = 0) Then trigger = "Startup"
-    If (StrComp(argTrigger, "SystemResume", vbTextCompare) = 0) Then trigger = "SystemResume"
-    If (StrComp(argTrigger, "SystemUnlock", vbTextCompare) = 0) Then trigger = "SystemUnlock"
-    If (StrComp(argTrigger, "TimeSwitchModule", vbTextCompare) = 0) Then trigger = "TimeSwitchModule"
+    If Not IsEmpty(argTrigger) Then trigger = ArgGetTrigger(argTrigger)
+    If Not IsEmpty(argTr) Then trigger = ArgGetTrigger(argTr)
 
-    ' isThemeDark
-    If (StrComp(argsNamed.Item("theme"), "Dark", vbTextCompare) = 0) Then isThemeDark = True
-    If (StrComp(argsNamed.Item("theme"), "Light", vbTextCompare) = 0) Then isThemeDark = False
+    ' isThemeDark, strTheme
+    If Not IsEmpty(argTheme) Then isThemeDark = ArgIsThemeDark(argTheme)
+    If Not IsEmpty(argTh) Then isThemeDark = ArgIsThemeDark(argTh)
+    If Not IsEmpty(argT) Then isThemeDark = ArgIsThemeDark(argT)
+    If IsEmpty(isThemeDark) Then isThemeDark = Not IsWindowsThemeLight()
+    strTheme = "Light"
+    If isThemeDark Then strTheme = "Dark"
+
+    ' isRestartModeMinimized
+    isRestartModeMinimized = False
+    If Not IsEmpty(argRestartmode) Then isRestartModeMinimized = ArgIsRestartModeMinimized(argRestartmode)
+    If Not IsEmpty(argRm) Then isRestartModeMinimized = ArgIsRestartModeMinimized(argRm)
 
     ' doActivateWin, doRefreshAdm, doRestart, doScripts
     doActivateWin = True
@@ -116,10 +123,7 @@ Sub SetArguments()
            StrComp(arg, "/noact", vbTextCompare) = 0 Then doActivateWin = False
     Next
     
-    ' isThemeDark, strTheme
-    If IsEmpty(isThemeDark) Then isThemeDark = Not IsWindowsThemeLight()
-    strTheme = "Light"
-    If isThemeDark Then strTheme = "Dark"
+    
 End Sub
 
 ' Restart explorer.exe
@@ -137,11 +141,19 @@ Sub RestartExplorer()
         ' Restart
         Call Echoo(" > Restart <explorer.exe> and restore tabs", True)
         If objFSO.FileExists("vbs\restart_explorer.vbs") Then
-            Call objShell.Run("cscript //nologo vbs\restart_explorer.vbs", 0, False)
+            command = "cscript //nologo ""vbs\restart_explorer.vbs"""
+            If isRestartModeMinimized Then command = command & " /minimized"
+            Call objShell.Run(command, 0, False)
         Else
-            command = "$e='explorer';$t=@();(New-Object -co Shell.Application).Windows()|" & _
-                "%{$t+=@{p=$_.LocationURL;w=if($_.Top -lt 0){if($_.Top -lt -8000){'min'}else{'max'}}else{'nor'}}};" & _
+            command = "$e='explorer';$t=@();(New-Object -co Shell.Application).Windows()|%{$t+="
+            If isRestartModeMinimized Then
+                command = command & _
+                "$_.LocationURL};kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 4;$t|%{saps $_ -win min}"
+            Else
+                command = command & _
+                "@{p=$_.LocationURL;w=if($_.Top -lt 0){if($_.Top -lt -8000){'min'}else{'max'}}else{'nor'}}};" & _
                 "kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 4;$t|%{saps $_.p -win $_.w}"
+            End If
             Call objShell.Run("powershell.exe -noni -nol -nop -ep bypass -c """ & command & """", 0, False)
         End If
 
@@ -218,6 +230,7 @@ Sub EchoArguments()
     Call WScript.Echo(" doRestart: " & doRestart)
     Call WScript.Echo(" doScripts: " & doScripts)
     Call WScript.Echo(" isThemeDark: " & isThemeDark)
+    Call WScript.Echo(" isRestartModeMinimized: " & isRestartModeMinimized)
     Call WScript.Echo("========")
 End Sub
 
@@ -242,4 +255,38 @@ Function IsWindowsThemeLight()
     Else
         IsWindowsThemeLight = False
     End If
+End Function
+
+Function ArgGetTrigger(text)
+    Dim x
+    If (StrComp(text, "Any", vbTextCompare) = 0) Then x = "Any"
+    If (StrComp(text, "Api", vbTextCompare) = 0) Then x = "Api"
+    If (StrComp(text, "BatteryStatusChanged", vbTextCompare) = 0) Then x = "BatteryStatusChanged"
+    If (StrComp(text, "ExternalThemeSwitch", vbTextCompare) = 0) Then x = "ExternalThemeSwitch"
+    If (StrComp(text, "Manual", vbTextCompare) = 0) Then x = "Manual"
+    If (StrComp(text, "NightLightTrackerModule", vbTextCompare) = 0) Then x = "NightLightTrackerModule"
+    If (StrComp(text, "Startup", vbTextCompare) = 0) Then x = "Startup"
+    If (StrComp(text, "SystemResume", vbTextCompare) = 0) Then x = "SystemResume"
+    If (StrComp(text, "SystemUnlock", vbTextCompare) = 0) Then x = "SystemUnlock"
+    If (StrComp(text, "TimeSwitchModule", vbTextCompare) = 0) Then x = "TimeSwitchModule"
+    ArgGetTrigger = x
+End Function
+
+Function ArgIsThemeDark(text)
+    Dim x
+    If (StrComp(text, "Dark", vbTextCompare) = 0) Or _
+       (StrComp(text, "d", vbTextCompare) = 0) Then x = True
+    If (StrComp(text, "Light", vbTextCompare) = 0) Or _
+       (StrComp(text, "l", vbTextCompare) = 0) Then x = False
+    ArgIsThemeDark = x
+End Function
+
+Function ArgIsRestartModeMinimized(text)
+    Dim x
+    x = False
+    If (StrComp(text, "Minimized", vbTextCompare) = 0) Or _
+       (StrComp(text, "Minimize", vbTextCompare) = 0) Or _
+       (StrComp(text, "min", vbTextCompare) = 0) Or _
+       (StrComp(text, "m", vbTextCompare) = 0) Then x = True
+    ArgIsRestartModeMinimized = x
 End Function
