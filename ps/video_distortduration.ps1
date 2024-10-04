@@ -24,6 +24,8 @@ $fileBytes = [System.IO.File]::ReadAllBytes($inputFilePath)
 # Convert the byte array to a hex string
 $hexString = -join ($fileBytes | ForEach-Object { $_.ToString("X2") })
 
+if ($hexString -notmatch $searchHex) {return "[video_distortduration.ps1]: Hex search pattern not found"}
+
 # Replace the search hex value with the replace hex value
 $modifiedHexString = $hexString -replace $searchHex, $replaceHex
 
