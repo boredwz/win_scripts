@@ -24,7 +24,7 @@
 param(
     [Alias("in", "file")]$inputFile,
     [Alias("out")]$outputFile,
-    [Alias("kb")][ValidatePattern("^[0-9][0-9][0-9][0-9]?")]$customKb
+    [Alias("kb")]$customKb
 )
 
 function Get-VideoDuration($path) {
@@ -41,7 +41,7 @@ function Get-VideoDuration($path) {
 $e = "webm_tg_videosticker.ps1"
 
 # init check
-if ( !(Get-Command ffmpeg -ErrorAction SilentlyContinue) ) {return "[$e]: FFmpeg is not in the PATH."}
+if ( !(Get-Command ffmpeg -ErrorAction 0) ) {return "[$e]: FFmpeg is not in the PATH."}
 if ([string]::IsNullOrEmpty($inputFile)) {return "[$e]: Input file is null or empty."}
 if ( !(Test-Path $inputFile -PathType Leaf) ) {return "[$e]: '$inputFile' not found."}
 
@@ -65,7 +65,7 @@ $outputFile = `
 
 # get target bitrate
 $kb = 2000 #    default: 2097.152
-if ($customKb) {$kb = $customKb}
+if ($customKb -and ($customKb -match '^([1-9][0-9]{2}|1[0-9]{3}|20[0-9][0-7])$')) {$kb = $customKb}
 $videoDuration = (Get-VideoDuration $inputFile) -replace '^.+?(1?\d\.\d).*?$','$1' # Seconds(0-19).Milliseconds(0-9)
 $targetBitrate = if ($videoDuration) {
     "{0}k" -f (($kb / $videoDuration) -replace '\..+','')
@@ -102,12 +102,12 @@ ffmpeg @(
 )
 
 
-
-# invoke webm_distortduration.ps1
-"[$e]: invoking webm_distortduration.ps1..."
+# create dir
 $outDir = Split-Path $outputFile -Parent
 if ( !(Test-Path $outDir -PathType Container -ErrorAction 0) ) {$null = mkdir $outDir}
 
+# invoke webm_distortduration.ps1
+"[$e]: invoking webm_distortduration.ps1..."
 $distortFile = (Join-Path $savedLocation "webm_distortduration.ps1")
 if (Test-Path $distortFile -PathType Leaf -ErrorAction 0) {
     & $distortFile "$($name)_temp.webm" $outputFile
@@ -120,8 +120,8 @@ if (Test-Path $distortFile -PathType Leaf -ErrorAction 0) {
 
 
 # clean up
-Remove-Item "$($name)_temp.webm" -ErrorAction SilentlyContinue
-Remove-Item "ffmpeg2pass*.log" -ErrorAction SilentlyContinue
+Remove-Item "$($name)_temp.webm" -ErrorAction 0
+Remove-Item "ffmpeg2pass*.log" -ErrorAction 0
 
 # restore PS location
 Set-Location $savedLocation
