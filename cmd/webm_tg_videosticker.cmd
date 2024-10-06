@@ -11,9 +11,9 @@
 ::      - Set kb size (https://trac.ffmpeg.org/wiki/Encode/H.264#twopass)
 
 @echo off
-::setlocal EnableDelayedExpansion
 if "%~1"=="" (echo Please drag and drop files onto this batch file.& pause & exit /b)
 for /f "usebackq delims=" %%A in (` findstr /b /c:"::  " "%~f0" `) do echo %%A
+setlocal EnableDelayedExpansion
 echo:
 
 call:CheckFFmpeg
@@ -28,13 +28,14 @@ rem set "scriptCmnd=& $([scriptblock]::Create((gc -raw '.\ps\_ _.ps1')))"
 set "scriptPath=..\ps\webm_tg_videosticker.ps1"
 
 for %%I in (%*) do (
-    echo ==== Processing file: %%I
+    echo ==== Processing file: %%~I
+    set "file=%%~dpI%outDir%%%~nI_tg.webm"
     if exist "%scriptPath%" (
-        powershell %pwsh% -f "%scriptPath%" "%%~I" "%%~dpI%outDir%%%~nI_tg.webm" "%kb%"
+        powershell %pwsh% -f "%scriptPath%" "%%~I" "!file!" "%kb%"
     ) else (
-        powershell %pwsh% -c "%scriptCmnd% '%%~I' '%%~dpI%outDir%%%~nI_tg.webm' '%kb%'"
+        powershell %pwsh% -c "%scriptCmnd% '%%~I' '!file!' '%kb%'"
     )
-    echo ====
+    if exist "!file!" (echo ==== Success!) else (echo ==== ?)
     echo:
 )
 
