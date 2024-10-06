@@ -74,9 +74,8 @@ $targetBitrate = if ($videoDuration) {
 } else {
     "500k"
 }
-"[$e]: duration = $($videoDuration) sec"
-"[$e]: bitrate = $targetBitrate"
 
+"[$e]: duration = $($videoDuration)s | target bitrate = $($targetBitrate)bit"
 
 
 # ffmpeg convert (two-pass)
@@ -109,7 +108,7 @@ $outDir = Split-Path $outputFile -Parent
 if ( !(Test-Path $outDir -PathType Container -ErrorAction 0) ) {$null = mkdir $outDir}
 
 # invoke webm_distortduration.ps1
-"[$e]: invoking webm_distortduration.ps1..."
+#"[$e]: invoking webm_distortduration.ps1..."
 $distortFile = Get-ChildItem (Split-Path -Parent $savedLocation) -File `
     -Recurse -Depth 1 `
     -Filter "webm_distortduration.ps1" `
@@ -120,11 +119,13 @@ if ($distortFile) {
 } else {
     $distort = Invoke-WebRequest `
         -useb https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/webm_distortduration.ps1
-    #Invoke-Expression "& {$distort} '$($name)_temp.webm' '$outputFile'"
     Invoke-Expression "& $([scriptblock]::Create($distort)) '$($name)_temp.webm' '$outputFile'"
 }
 
-
+"[{0}]: {1} successfully created, file size: [~{2} KB]" -f `
+    $e, `
+    ($outputFile -replace '^.*\\(.*)$','$1'), `
+    ((("{0:N1}" -f ((Get-Item -Path $outputFile).Length / 1KB))) -replace '^(\d+?)\.0$','$1')
 
 # clean up
 Remove-Item "$($name)_temp.webm" -ErrorAction 0
