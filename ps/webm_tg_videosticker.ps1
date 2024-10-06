@@ -7,6 +7,7 @@
 #    ffmpeg  | https://www.ffmpeg.org
 #  
 #  [Description]
+#    (!) FFmpeg.exe and FFprobe.exe must be in the PATH.
 #    Using ffmpeg convert video to Telegram webm. Recommended duration: 4-8 sec.
 #     - Codec: VP9
 #     - Max height and width: 512 px
@@ -42,6 +43,7 @@ $e = "webm_tg_videosticker.ps1"
 
 # init check
 if ( !(Get-Command ffmpeg -ErrorAction 0) ) {return "[$e]: FFmpeg is not in the PATH."}
+if ( !(Get-Command ffprobe -ErrorAction 0) ) {return "[$e]: FFprobe is not in the PATH."}
 if ([string]::IsNullOrEmpty($inputFile)) {return "[$e]: Input file is null or empty."}
 if ( !(Test-Path $inputFile -PathType Leaf) ) {return "[$e]: '$inputFile' not found."}
 
@@ -65,7 +67,7 @@ $outputFile = `
 
 # get target bitrate
 $kb = 2000 #    default: 2097.152
-if ($customKb -and ($customKb -match '^([1-9][0-9]{2}|1[0-9]{3}|20[0-9][0-7])$')) {$kb = $customKb}
+if ($customKb -match '^([1-9][0-9]{2}|1[0-9]{3}|20[0-9][0-7])$') {$kb = $customKb}
 $videoDuration = (Get-VideoDuration $inputFile) -replace '^.+?(1?\d\.\d).*?$','$1' # Seconds(0-19).Milliseconds(0-9)
 $targetBitrate = if ($videoDuration) {
     "{0}k" -f (($kb / $videoDuration) -replace '\..+','')
@@ -108,13 +110,18 @@ if ( !(Test-Path $outDir -PathType Container -ErrorAction 0) ) {$null = mkdir $o
 
 # invoke webm_distortduration.ps1
 "[$e]: invoking webm_distortduration.ps1..."
-$distortFile = (Join-Path $savedLocation "webm_distortduration.ps1")
-if (Test-Path $distortFile -PathType Leaf -ErrorAction 0) {
-    & $distortFile "$($name)_temp.webm" $outputFile
+$distortFile = Get-ChildItem (Split-Path -Parent $savedLocation) -File `
+    -Recurse -Depth 1 `
+    -Filter "webm_distortduration.ps1" `
+    -ErrorAction 0 `
+    | Select-Object -First 1
+if ($distortFile) {
+    & ($distortFile.FullName) "$($name)_temp.webm" $outputFile
 } else {
     $distort = Invoke-WebRequest `
         -useb https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/webm_distortduration.ps1
-    Invoke-Expression "& {$distort} '$($name)_temp.webm' '$outputFile'"
+    #Invoke-Expression "& {$distort} '$($name)_temp.webm' '$outputFile'"
+    Invoke-Expression "& $([scriptblock]::Create($distort)) '$($name)_temp.webm' '$outputFile'"
 }
 
 
