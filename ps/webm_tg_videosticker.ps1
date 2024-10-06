@@ -42,10 +42,10 @@ function Get-VideoDuration($path) {
 $e = "webm_tg_videosticker.ps1"
 
 # init check
-if ( !(Get-Command ffmpeg -ErrorAction 0) ) {return "[$e]: FFmpeg is not in the PATH."}
-if ( !(Get-Command ffprobe -ErrorAction 0) ) {return "[$e]: FFprobe is not in the PATH."}
-if ([string]::IsNullOrEmpty($inputFile)) {return "[$e]: Input file is null or empty."}
-if ( !(Test-Path $inputFile -PathType Leaf) ) {return "[$e]: '$inputFile' not found."}
+if ( !(Get-Command ffmpeg -ErrorAction 0) ) {return "[$e] FFmpeg is not in the PATH."}
+if ( !(Get-Command ffprobe -ErrorAction 0) ) {return "[$e] FFprobe is not in the PATH."}
+if ([string]::IsNullOrEmpty($inputFile)) {return "[$e] Input file is null or empty."}
+if ( !(Test-Path $inputFile -PathType Leaf) ) {return "[$e] '$inputFile' not found."}
 
 
 
@@ -75,11 +75,11 @@ $targetBitrate = if ($videoDuration) {
     "500k"
 }
 
-"[$e]: duration = $($videoDuration)s | target bitrate = $($targetBitrate)bit"
+"[$e] duration: ~$($videoDuration)s | target bitrate: ~$($targetBitrate)bit"
 
 
 # ffmpeg convert (two-pass)
-"[$e]: ffmpeg converting..."
+"[$e] ffmpeg converting..."
 ffmpeg @(
     "-i", $inputFile,
     "-loglevel", "fatal",
@@ -108,7 +108,7 @@ $outDir = Split-Path $outputFile -Parent
 if ( !(Test-Path $outDir -PathType Container -ErrorAction 0) ) {$null = mkdir $outDir}
 
 # invoke webm_distortduration.ps1
-#"[$e]: invoking webm_distortduration.ps1..."
+#"[$e] invoking webm_distortduration.ps1..."
 $distortFile = Get-ChildItem (Split-Path -Parent $savedLocation) -File `
     -Recurse -Depth 1 `
     -Filter "webm_distortduration.ps1" `
@@ -117,15 +117,17 @@ $distortFile = Get-ChildItem (Split-Path -Parent $savedLocation) -File `
 if ($distortFile) {
     & ($distortFile.FullName) "$($name)_temp.webm" $outputFile
 } else {
-    $distort = Invoke-WebRequest `
-        -useb https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/webm_distortduration.ps1
-    Invoke-Expression "& $([scriptblock]::Create($distort)) '$($name)_temp.webm' '$outputFile'"
+    $distort = Invoke-WebRequest -useb `
+        "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/webm_distortduration.ps1"
+    & $([scriptblock]::Create(($distort))) "$($name)_temp.webm" $outputFile
 }
 
-"[{0}]: {1} successfully created, file size: [~{2} KB]" -f `
-    $e, `
-    ($outputFile -replace '^.*\\(.*)$','$1'), `
-    ((("{0:N1}" -f ((Get-Item -Path $outputFile).Length / 1KB))) -replace '^(\d+?)\.0$','$1')
+If (Test-Path $outputFile -PathType Leaf -ErrorAction 0) {
+    "[{0}] {1} successfully created, file size: ~{2} KB" -f `
+        $e, `
+        ($outputFile -replace '^.*\\(.*)$','$1'), `
+        ((("{0:N1}" -f ((Get-Item -Path $outputFile).Length / 1KB))) -replace '^(\d+?)\.0$','$1')
+}
 
 # clean up
 Remove-Item "$($name)_temp.webm" -ErrorAction 0
