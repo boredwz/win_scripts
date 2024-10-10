@@ -48,7 +48,8 @@ Customize installation directory — `$installDir`
 
 ### Manual
 
-> `💡`&nbsp; Enable **Debug mode** in ADM Settings and check `service.log` for syntax errors. Look for lines like this: `AdmConfigMonitor.OnChangedScriptConfig`
+> [!TIP]
+> Enable **Debug mode** in ADM Settings and check `service.log` for syntax errors. Look for lines like this: `AdmConfigMonitor.OnChangedScriptConfig`
 
 - **Install**
 
@@ -102,7 +103,8 @@ cscript //nologo "adm_helper.vbs" /theme:dark /trigger:Any /restartmode:minimize
 
 ##  VBScript alternative
 
-> `⚠️`&nbsp; In October 2023, Microsoft announced that VBScript will be deprecated. In future releases of Windows, VBScript will be available as a Feature On Demand before its removal from the operating system.
+> [!WARNING]
+> In October 2023, Microsoft announced that VBScript will be deprecated. In future releases of Windows, VBScript will be available as a Feature On Demand before its removal from the operating system.
 
 Some _PowerShell_ scripts are duplicated in _Visual Basic (VBScript)_. They are designed for older PCs where the process of starting (initializing) _PowerShell_ is slower than _Windows Script Host_. This can be useful, for example, when restarting `explorer.exe`.
 
