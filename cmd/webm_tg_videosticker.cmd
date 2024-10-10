@@ -4,11 +4,12 @@
 ::    boredwz | https://github.com/boredwz
 ::  
 ::  [Usage]
+::    (!) !@`^&*[] - forbidden file/folder name symbols.
 ::    (!) FFmpeg.exe and FFprobe.exe must be in the PATH.
 ::    1. Drag and drop files onto this batch file.
 ::    2. Customize:
-::      - Set output directory name (!@`%^&*[] - forbidden symbols)
-::      - Set kb size (https://trac.ffmpeg.org/wiki/Encode/H.264#twopass)
+::      - Set output directory name 
+::      - Set kb size
 
 @echo off
 if "%~1"=="" (echo Please drag and drop files onto this batch file.& pause & exit /b)
@@ -27,17 +28,25 @@ set "scriptCmnd=& $([scriptblock]::Create((iwr -useb https://raw.githubuserconte
 rem set "scriptCmnd=& $([scriptblock]::Create((gc -raw '.\ps\_ _.ps1')))"
 set "scriptPath=..\ps\webm_tg_videosticker.ps1"
 
+set count=0
+set files=0
+for %%F in (%*) do set /a files+=1
+echo [!Time:~0,-3!] :::: Process start ::::
+echo:
 for %%I in (%*) do (
-    echo ==== Processing file: %%~I
+    set /a count+=1
+    echo [!Time:~0,-3!] :: File [!count!/!files!] "%%~nxI"
     set "file=%%~dpI%outDir%%%~nI_tg.webm"
     if exist "%scriptPath%" (
         powershell %pwsh% -f "%scriptPath%" "%%~I" "!file!" "%kb%"
     ) else (
         powershell %pwsh% -c "%scriptCmnd% '%%~I' '!file!' '%kb%'"
     )
-    if exist "!file!" (echo ==== Success!) else (echo ==== ?)
+    if exist "!file!" (echo [!Time:~0,-3!] :: Done) else (echo [!Time:~0,-3!] :: ?)
     echo:
 )
+
+echo [!Time:~0,-3!] :::: Process end ::::
 
 cd /d "%savedLocation%"
 pause
@@ -57,7 +66,7 @@ if %checkFFprobe% NEQ 0 (echo FFprobe is not in the PATH. & pause & exit)
 exit /b
 
 :Customize
-set "kb=2000"
+set "kb=0"
 set /p "customize=Customize options? [y/n]: "
 if /I not "%customize%"=="y" (exit /b)
 call:outDir
@@ -68,9 +77,9 @@ exit /b
 set /p "customDir=Output directory name: "
 if "%customDir%"=="" (exit /b)
 rem check for !@`%^&*[]
-echo %customDir% | findstr /r /c:"[!@`%^&*\[\]]" >nul 2>&1
+echo %customDir% | findstr /r /c:"[!@`^&*\[\]]" >nul 2>&1
 set "checkDir=%errorlevel%"& ver >nul
-if %checkDir% NEQ 0 (set "outDir=%customDir%\")
+if %checkDir% NEQ 0 (set "outDir=%customDir%\") else (echo outDir contains forbidden symbols)
 exit /b
 
 :kb
