@@ -69,7 +69,7 @@ $ProgressPreference=0;$g="https://gist.githubusercontent.com/boredwz/e7872773f4c
 | Parameter | Value | Description |
 |---|---|---|
 | Output directory | `text` | *Create a folder and place all converted files there*<br><br><code>!@\`^&\*[]</code> — forbidden file/folder name symbols. |
-| kb | `100-2097` | *It is a formula for calculating the estimated bitrate so that the file size does not exceed 256KB, based on https://trac.ffmpeg.org/wiki/Encode/H.264#twopass*<br><br>`2000-2070` — recommended value range. |
+| kb | `100-2097` | *It is a formula for calculating the estimated bitrate <br> so that the file size does not exceed 256KB, <br> based on https://trac.ffmpeg.org/wiki/Encode/H.264#twopass*<br><br>`2000-2070` — recommended value range. |
     
 If the file size is >256 KB after the first conversion, the script will try to convert it again, but with a lower bitrate. In most cases, this works, so I recommend using `kb` parameter only if you still get a file >256KB (see warning info).
 
