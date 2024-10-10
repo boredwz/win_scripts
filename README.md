@@ -4,11 +4,9 @@
 
 ## Auto Dark Mode helper script
 
-> 📜 **[`README.md`](./Docs/ADM_Helper.md)&nbsp; —&nbsp; installation, examples, detailed info**
+PowerShell script that enhances AutoDarkMode Scripts, fixes Windows artifacts when switching themes with advanced functions.
 
-Auto Dark Mode allows you to switch between light and dark themes, but it causes OS interface artifacts. This script will help you get rid of them.
-
-### Features
+### 🔥 Features
 
 - Prevent ADM script multiple instance (lock file)  
 - Restart `explorer.exe` and restore tabs  
@@ -16,9 +14,23 @@ Auto Dark Mode allows you to switch between light and dark themes, but it causes
 - Refresh ADM theme to fix wallpaper not changing error (force theme toggle)  
 - Restore last active window (ps\\foregroundWindow.ps1)
 
+### 🔗 [More info](./Docs/ADM_Helper.md) — installation, usage, examples
+
 <br>
 
+## Telegram webm video sticker converter
 
+Create Telegram video sticker files using FFmpeg.
+
+### 🔥 Features
+
+- Convert any video (FFmpeg)
+- Resize up to `512x512px`
+- Output `.webm` file is ready to share to Telegram Sticker Bot
+
+### 🔗 [More info](./Docs/Telegram_videosticker.md) — usage, customization, example
+
+<br>
 
 ## Theme scripts
 
