@@ -27,11 +27,12 @@ set "pwsh=-nol -noni -nop -ep bypass"
 set "scriptCmnd=& $([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/webm_tg_videosticker.ps1)))"
 rem set "scriptCmnd=& $([scriptblock]::Create((gc -raw '.\ps\_ _.ps1')))"
 set "scriptPath=..\ps\webm_tg_videosticker.ps1"
+if not exist "%scriptPath%" (set "scriptPath=webm_tg_videosticker.ps1")
 
 set count=0
 set files=0
 for %%F in (%*) do set /a files+=1
-echo [!Time:~0,-3!] :::: Process start ::::
+echo :::: Process start ::::
 echo:
 for %%I in (%*) do (
     set /a count+=1
@@ -46,7 +47,7 @@ for %%I in (%*) do (
     echo:
 )
 
-echo [!Time:~0,-3!] :::: Process end ::::
+echo :::: Process end ::::
 
 cd /d "%savedLocation%"
 pause
