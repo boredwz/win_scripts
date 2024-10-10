@@ -17,14 +17,14 @@
 #     - No audio
 #     - Metadata removed
 #    
-#    If the file >256KB after the 1-st conversion, the script will try to convert again, but with a lower bitrate.
+#    If the file >256KB after 1-st conversion, the script will try to convert again, but with a lower bitrate.
 #    In most cases, this works, so I recommend using the <kb> parameter only if you still end up with a file >256KB (see warning info).
 #    - Acceptable <kb> value range: 100-2097
-#    - Recommended <kb> value range: 1750-2070
-#    Some tests with <kb> value:
-#    - 2097: 14/25 files > 256 KB
-#    - 2060: 2/25 files > 256 KB (default)
-#    - 2000: 0/25 files > 256 KB
+#    - Recommended <kb> value range: 2000-2070
+#    Some tests with <kb> value (after 1-st conversion):
+#    - 2097: 14/25 files >256 KB
+#    - 2060: 2/25 files >256 KB (default)
+#    - 2000: 0/25 files >256 KB
 #  
 #  [Usage]
 #    & ".\webm_tg_videosticker.ps1" ".\sticker.mp4"
@@ -186,7 +186,7 @@ $webm = New-WebmSticker $inputFile $tempFile $targetBitrate
 if (($webm.Exists) -and ($webm.Size -gt 256)) {
     $perc = (256 / $webm.Size) - 0.01
     $newBitrate = [Math]::Floor($targetBitrate * $perc)
-    "[$e] Size: ~{0:N1}KB, re-converting with {1}kbit..." -f ($webm.Size), $newBitrate
+    "[$e] Size: ~{0:N1}KB, re-converting with ~{1}kbit..." -f ($webm.Size), $newBitrate
     $webm = New-WebmSticker $inputFile $tempFile $newBitrate
 }
 
