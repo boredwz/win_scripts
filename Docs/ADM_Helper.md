@@ -25,24 +25,24 @@ Customize installation directory — `$installDir`
 - **Install**
 
   ```powershell
-  $installDir = "$env:USERPROFILE" `
-  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1" `
+  $installDir = "$env:USERPROFILE"; `
+  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1"; `
   & $([scriptblock]::Create((iwr -useb $installerUrl))) $installDir
   ```
 
 - **Update**
 
   ```powershell
-  $installDir = "$env:USERPROFILE" `
-  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1" `
+  $installDir = "$env:USERPROFILE"; `
+  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1"; `
   & $([scriptblock]::Create((iwr -useb $installerUrl))) $installDir -Update
   ```
 
 - **Uninstall**
 
   ```powershell
-  $installDir = "$env:USERPROFILE" `
-  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1" `
+  $installDir = "$env:USERPROFILE"; `
+  $installerUrl = "https://raw.githubusercontent.com/boredwz/win_scripts/master/ps/adm_helper_installer.ps1"; `
   & $([scriptblock]::Create((iwr -useb $installerUrl))) $installDir -Uninstall
   ```
 
