@@ -53,7 +53,7 @@ Customize installation directory — `$installDir`
 - **Install**
 
   1\.&nbsp; Clone this repository, or download and extract **[master.zip](https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip)**  
-  2\.&nbsp; In `adm_scripts.yaml` change _WorkingDirectory_ to the `..\win_scripts\ps` folder  
+  2\.&nbsp; In `adm_scripts.yaml` change _WorkingDirectory_ to the `.\win_scripts\ps` folder  
   3\.&nbsp; Rename `adm_scripts.yaml` -> `scripts.yaml`  
   4\.&nbsp; Copy -> `%APPDATA%\AutoDarkMode\scripts.yaml`  
   5\.&nbsp; Enable scripts in ADM settings
@@ -67,10 +67,10 @@ Customize installation directory — `$installDir`
 
 <br>
 
-### Command-line parameters
+## Command-line parameters
 
-```
--<Parameter> [Value]
+```powershell
+& adm_helper.ps1 -<Parameter> [Value]
 ```
 
 | Parameter | Values | Description |
@@ -83,7 +83,9 @@ Customize installation directory — `$installDir`
 | NoScripts |  | Do not launch external scripts (ps\\_adm_helper\\\*.ps1) |
 | NoActivate |  | Do not restore last active window (ps\\foreground_window.ps1) |
 
-#### Examples
+<br>
+
+## Examples
 
 ```powershell
 # PowerShell
@@ -98,7 +100,7 @@ cscript //nologo "adm_helper.vbs" /theme:dark /trigger:Any /restartmode:minimize
 
 <br>
 
-###  VBScript alternative
+##  VBScript alternative
 
 > `⚠️`&nbsp; In October 2023, Microsoft announced that VBScript will be deprecated. In future releases of Windows, VBScript will be available as a Feature On Demand before its removal from the operating system.
 
