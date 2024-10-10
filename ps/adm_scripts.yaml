@@ -24,3 +24,11 @@ Component:
     ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, TimeSwitchModule, -RestartMode, Normal]
     AllowedSources: [TimeSwitchModule]
     TimeoutMillis: 30000
+  
+  - Name: "== PS (SystemUnlock) =="
+    Command: powershell
+    WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
+    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Light, -Trigger, SystemUnlock, -RestartMode, Normal]
+    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, SystemUnlock, -RestartMode, Normal]
+    AllowedSources: [SystemUnlock]
+    TimeoutMillis: 30000

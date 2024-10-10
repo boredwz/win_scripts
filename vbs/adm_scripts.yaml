@@ -24,3 +24,11 @@ Component:
     ArgsDark: [//nologo, adm_helper.vbs, /trigger:TimeSwitchModule, /theme:dark, /restartmode:normal]
     AllowedSources: [TimeSwitchModule]
     TimeoutMillis: 30000
+
+  - Name: "== VBS (SystemUnlock) =="
+    Command: cscript
+    WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\vbs"
+    ArgsLight: [//nologo, adm_helper.vbs, /trigger:SystemUnlock, /theme:light, /restartmode:normal]
+    ArgsDark: [//nologo, adm_helper.vbs, /trigger:SystemUnlock, /theme:dark, /restartmode:normal]
+    AllowedSources: [SystemUnlock]
+    TimeoutMillis: 30000
