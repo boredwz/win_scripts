@@ -1,6 +1,6 @@
-# Telegram webm videosticker converter
+# Telegram webm video sticker converter
 
-Create Telegram videosticker files using FFmpeg.
+Create Telegram video sticker files using FFmpeg.
 
 ## Video sticker requirements from official [Telegram FAQ](https://core.telegram.org/stickers/webm-vp9-encoding#video-requirements-for-stickers-and-emoji)
 
