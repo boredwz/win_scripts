@@ -2,8 +2,8 @@
 ' Contact: https://github.com/boredwz
 
 Public cellYearMonth, cellWeekdays, cellTable, cellPrint, cellTrash, cellDates, cellSettingsSheet, sYear, sMonth, sWeekdays, sSettingsSheetName As String
-Public rTable, rPrint, rTrash, rTrashFull, rDates, rTableCell1st, rTableCellEnd, rTableData As Range
-Public iTrashItems As Integer
+Public rTable, rPrint, rTrash, rTrashLastCell, rDates, rTableCell1st, rTableCellEnd, rTableData As Range
+Public iTrashItems, iTableColumns As Integer
 '
 '
 '
@@ -55,9 +55,10 @@ Private Function Init() ' True if arguments is valid
             Set rTableCell1st = Cells(rTableCell1st.Row + 1, rTableCell1st.Column) ' go down 1 row to include only data
         End If
         Set rTableData = Range(rTableCell1st, rTableCellEnd)
+        iTableColumns = (rTableCellEnd.Column - rTableCell1st.Column) + 1
         Set rPrint = Range(zzsPrint)
         Set rTrash = Cells(Range(zzsTrash).Row, Range(zzsTrash).Column) ' A1:B2 => A1:A1
-        Set rTrashFull = Range(rTrash, Cells(rTrash.Row + iTrashItems, rTableCellEnd.Column)) ' A1:A1 => A1:{end of table}{max trash items}
+        Set rTrashLastCell = Cells(rTrash.Row + iTrashItems, rTrash.Column + (iTableColumns - 1))
         Set rDates = Range(zzsDates)
         sSettingsSheetName = zzsSettingsSheet
         Init = True
@@ -98,42 +99,48 @@ Sub Del_Row() ' Move active table row to Trash
     If Not Init() Then Exit Sub
     If Intersect(Selection, rTableData) Is Nothing Then Exit Sub ' return if not in range of table data
     
-    Set zzrItemCell = Cells(ActiveCell.Row, rTableCell1st.Column) ' table 1st column (from active cell)
-    Set zzrItem = Range(zzrItemCell, Cells(ActiveCell.Row, rTableCellEnd.Column)) ' table row (from active cell)
+    Set zCell = Cells(ActiveCell.Row, rTable.Column) ' table 1st cell (from active cell)
+    Set zRow = Range(zCell, Cells(zCell.Row, rTableCellEnd.Column)) ' table row (from active cell)
 
-    ' Clear {zzrItem} formatting
-    With zzrItem.Interior
+    ' Clear {zRow} formatting
+    With zRow.Interior
         .Pattern = xlNone
         .TintAndShade = 0
         .PatternTintAndShade = 0
     End With
     
     ' If empty then clear contents and return
-    If IsEmpty(zzrItemCell.Value) Then
-        zzrItem.ClearContents
+    If IsEmpty(zCell.Value) Then
+        zRow.ClearContents
         Exit Sub
     End If
 
     ' Move Trash down (A1:B40) => (A2:B41)
-    rTrashFull.Cut Destination:=Cells(rTrash.Row + 1, rTrash.Column)
+    Range(rTrash, rTrashLastCell).Cut Destination:=Cells(rTrash.Row + 1, rTrash.Column)
     Call Init ' reset moved ranges
 
     ' Save current selection and view position
-    Set zzrSavedSelection = Selection
-    Set zzrSavedTopLeft = Cells(ActiveWindow.ScrollRow, ActiveWindow.ScrollColumn)
+    Set savedSelection = Selection
+    Set savedTopLeft = Cells(ActiveWindow.ScrollRow, ActiveWindow.ScrollColumn)
 
     ' Move to Trash
-    zzrItem.Copy
+    zRow.Copy
     rTrash.PasteSpecial Paste:=xlPasteValues ' item values => Trash cell
     Application.CutCopyMode = False ' clear the clipboard
-    zzrItem.ClearContents ' clear Table row contents
+    zRow.ClearContents ' clear Table row contents
     
     ' Restore selection and view position
-    zzrSavedSelection.Select
+    savedSelection.Select
     With ActiveWindow
-        .ScrollRow = zzrSavedTopLeft.Row
-        .ScrollColumn = zzrSavedTopLeft.Column
+        .ScrollRow = savedTopLeft.Row
+        .ScrollColumn = savedTopLeft.Column
     End With
+
+    ' Delete out of Trash box item
+    Range( _
+        Cells(rTrashLastCell.Row + 1, rTrash.Column), _
+        Cells(rTrashLastCell.Row + 1, rTrashLastCell.Column) _
+    ).ClearContents
 
     Sort_Ascending ' refresh
 End Sub
@@ -143,32 +150,35 @@ Sub Del_Undo() ' Restore last table row from Trash
     If IsEmpty(rTrash.Value) Then Exit Sub ' return if Trash is empty
 
     ' resize range of Trash cell => Trash item (row)
-    Set zzrTrashItem = Range(rTrash, Cells(rTrash.Row, rTableCellEnd.Column))
-    Set zzrTableLastCell = Cells(rTableCellEnd.Row, rTableCell1st.Column)
+    Set zTrashItem = Range(rTrash, Cells(rTrash.Row, rTrashLastCell.Column))
+    Set zTableLast = Cells(rTableCellEnd.Row, rTableCell1st.Column)
     
     ' Save current selection and view position
-    Set zzrSavedSelection = Selection
-    Set zzrSavedTopLeft = Cells(ActiveWindow.ScrollRow, ActiveWindow.ScrollColumn)
+    Set savedSelection = Selection
+    Set savedTopLeft = Cells(ActiveWindow.ScrollRow, ActiveWindow.ScrollColumn)
 
-    zzrTrashItem.Copy
-    zzrTableLastCell.PasteSpecial Paste:=xlPasteValues ' item values => Table last cell
+    zTrashItem.Copy
+    zTableLast.PasteSpecial Paste:=xlPasteValues ' item values => Table last cell
     Application.CutCopyMode = False ' clear the clipboard
-    zzrTrashItem.ClearContents ' clear Trash row contents
+    zTrashItem.ClearContents ' clear Trash row contents
 
     ' Restore selection and view position
-    zzrSavedSelection.Select
+    savedSelection.Select
     With ActiveWindow
-        .ScrollRow = zzrSavedTopLeft.Row
-        .ScrollColumn = zzrSavedTopLeft.Column
+        .ScrollRow = savedTopLeft.Row
+        .ScrollColumn = savedTopLeft.Column
     End With
 
     ' Move Trash up (A2:B41) => (A1:B40)
-    Range( _
-        Cells(rTrash.Row + 1, rTrash.Column), _
-        Cells(rTrash.Row + rTrashFull.Rows.Count, rTrashFull.Column) _
-    ).Cut Destination:=rTrash
+    Range(Cells(rTrash.Row + 1, rTrash.Column), rTrashLastCell).Cut Destination:=rTrash
     Call Init ' reset moved ranges
     
+    ' Delete out of Trash box item
+    Range( _
+        Cells(rTrashLastCell.Row + 1, rTrash.Column), _
+        Cells(rTrashLastCell.Row + 1, rTrashLastCell.Column) _
+    ).ClearContents
+
     Sort_Ascending ' refresh
 End Sub
 '   -------------------------------------------------------------------------------------------------------------------------
