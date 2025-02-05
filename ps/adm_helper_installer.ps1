@@ -40,10 +40,10 @@ if ($Destination) {if (Test-Path $Destination -Type Container) {$customLocation 
 $winscriptsPath = "$customLocation\win_scripts"
 $winscriptsBackupName = "win_scipts_$(Get-Date -uformat '%Y-%m-%d_%H-%M-%S')"
 
-""
+" "
 Echoo "[adm_helper_installer]"
 Echoo "Location: `"$winscriptsPath`""
-""
+" "
 
 # Uninstall win_scripts and exit.
 if ($Uninstall) {
@@ -109,4 +109,4 @@ if ($winscriptsBackupCreated) {
     Remove-Item "$customLocation\$winscriptsBackupName\" -Recurse -Force
 }
 
-Echoo "Done";"";return
+Echoo "Done";" ";return
