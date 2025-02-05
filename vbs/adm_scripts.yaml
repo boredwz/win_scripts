@@ -4,31 +4,31 @@ Component:
   - Name: "== VBS (BatteryStatusChanged) =="
     Command: cscript
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\vbs"
-    ArgsLight: [//nologo, adm_helper.vbs, /trigger:BatteryStatusChanged, /theme:light, /restartmode:normal]
-    ArgsDark: [//nologo, adm_helper.vbs, /trigger:BatteryStatusChanged, /theme:dark, /restartmode:normal]
+    ArgsLight: [//nologo, adm_helper.vbs, /tr:BatteryStatusChanged, /th:light, /r]
+    ArgsDark: [//nologo, adm_helper.vbs, /tr:BatteryStatusChanged, /th:dark, /r]
     AllowedSources: [BatteryStatusChanged]
     TimeoutMillis: 30000
 
   - Name: "== VBS (Manual) =="
     Command: cscript
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\vbs"
-    ArgsLight: [//nologo, adm_helper.vbs, /trigger:Manual, /theme:light, /restartmode:normal]
-    ArgsDark: [//nologo, adm_helper.vbs, /trigger:Manual, /theme:dark, /restartmode:normal]
+    ArgsLight: [//nologo, adm_helper.vbs, /tr:Manual, /th:light, /r]
+    ArgsDark: [//nologo, adm_helper.vbs, /tr:Manual, /th:dark, /r]
     AllowedSources: [Manual]
     TimeoutMillis: 30000
     
   - Name: "== VBS (TimeSwitchModule) =="
     Command: cscript
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\vbs"
-    ArgsLight: [//nologo, adm_helper.vbs, /trigger:TimeSwitchModule, /theme:light, /restartmode:normal]
-    ArgsDark: [//nologo, adm_helper.vbs, /trigger:TimeSwitchModule, /theme:dark, /restartmode:normal]
+    ArgsLight: [//nologo, adm_helper.vbs, /tr:TimeSwitchModule, /th:light, /r]
+    ArgsDark: [//nologo, adm_helper.vbs, /tr:TimeSwitchModule, /th:dark, /r]
     AllowedSources: [TimeSwitchModule]
     TimeoutMillis: 30000
 
   - Name: "== VBS (SystemUnlock) =="
     Command: cscript
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\vbs"
-    ArgsLight: [//nologo, adm_helper.vbs, /trigger:SystemUnlock, /theme:light, /restartmode:normal]
-    ArgsDark: [//nologo, adm_helper.vbs, /trigger:SystemUnlock, /theme:dark, /restartmode:normal]
+    ArgsLight: [//nologo, adm_helper.vbs, /tr:SystemUnlock, /th:light, /r]
+    ArgsDark: [//nologo, adm_helper.vbs, /tr:SystemUnlock, /th:dark, /r]
     AllowedSources: [SystemUnlock]
     TimeoutMillis: 30000

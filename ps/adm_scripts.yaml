@@ -4,31 +4,31 @@ Component:
   - Name: "== PS (BatteryStatusChanged) =="
     Command: powershell
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
-    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Light, -Trigger, BatteryStatusChanged, -RestartMode, Normal]
-    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, BatteryStatusChanged, -RestartMode, Normal]
+    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, L, -Tr, BatteryStatusChanged, -R]
+    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, D, -Tr, BatteryStatusChanged, -R]
     AllowedSources: [BatteryStatusChanged]
     TimeoutMillis: 30000
 
   - Name: "== PS (Manual) =="
     Command: powershell
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
-    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Light, -Trigger, Manual, -RestartMode, Normal]
-    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, Manual, -RestartMode, Normal]
+    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, L, -Tr, Manual, -R]
+    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, D, -Tr, Manual, -R]
     AllowedSources: [Manual]
     TimeoutMillis: 30000
     
   - Name: "== PS (TimeSwitchModule) =="
     Command: powershell
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
-    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Light, -Trigger, TimeSwitchModule, -RestartMode, Normal]
-    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, TimeSwitchModule, -RestartMode, Normal]
+    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, L, -Tr, TimeSwitchModule, -R]
+    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, D, -Tr, TimeSwitchModule, -R]
     AllowedSources: [TimeSwitchModule]
     TimeoutMillis: 30000
   
   - Name: "== PS (SystemUnlock) =="
     Command: powershell
     WorkingDirectory: "C:\\..CHANGE THIS..\\win_scripts\\ps"
-    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Light, -Trigger, SystemUnlock, -RestartMode, Normal]
-    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Theme, Dark, -Trigger, SystemUnlock, -RestartMode, Normal]
+    ArgsLight: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, L, -Tr, SystemUnlock, -R]
+    ArgsDark: [-noni, -nol, -nop, -ep, bypass, -f, .\adm_helper.ps1, -Th, D, -Tr, SystemUnlock, -R]
     AllowedSources: [SystemUnlock]
     TimeoutMillis: 30000
