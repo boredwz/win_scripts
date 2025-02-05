@@ -1,12 +1,11 @@
 param(
-    $Path,
+    $Destination,
     [Alias("upgrade")][switch]$Update,
-    [Alias("uninst","del","remove")][switch]$Uninstall
+    [Alias("uninst","del","remove")][switch]$Uninstall,
+    [Alias("vb")][switch]$Vbs
 )
 
-function Echoo($text) {
-    Write-Host "> $text"-ForegroundColor 3
-}
+function Echoo($text,[int]$lvl=0) {Write-Host "$([string]::new(' ',$lvl))> $text"-f 3}
 
 function Copy-Folder($source, $destination) {
     # Get all files from the source folder
@@ -31,62 +30,83 @@ function Copy-Folder($source, $destination) {
 
 
 
+$masterzipUrl = "https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip"
+$admData = "$env:APPDATA\AutoDarkMode"
+$admLocation = "$env:LOCALAPPDATA\Programs\AutoDarkMode\adm-app"
+$admShellPath = "$admLocation\AutoDarkModeShell.exe"
+$admSvcPath = "$admLocation\AutoDarkModeSvc.exe"
+$customLocation = $env:LOCALAPPDATA
+if ($Destination) {if (Test-Path $Destination -Type Container) {$customLocation = $Destination}}
+$winscriptsPath = "$customLocation\win_scripts"
+$winscriptsBackupName = "win_scipts_$(Get-Date -uformat '%Y-%m-%d_%H-%M-%S')"
 
+""
+Echoo "[adm_helper_installer]"
+Echoo "Location: `"$winscriptsPath`""
+""
 
-$savedLocation = Get-Location
-if (!$Path) {$Path = $env:USERPROFILE}
-if ( !(Test-Path $Path -PathType Container -ErrorAction 0) ) {$Path = $env:USERPROFILE}
-Set-Location $Path
-
-$dir = "win_scripts"
-$backup = "_win_scipts_bc"
-
+# Uninstall win_scripts and exit.
 if ($Uninstall) {
     Echoo "Uninstalling..."
-    $a = "AutoDarkMode"
-    if($null = Get-Process "$($a)Svc" -ErrorAction 0){
-        $aw = $true;
-        $null = & "$env:LOCALAPPDATA\Programs\$a\adm-app\$($a)Shell.exe" --exit
+    
+    Echoo "Quitting ADM..." 1
+    if($null = Get-Process "AutoDarkModeSvc" -ea 0){
+        $null = & $admShellPath --exit
+        $admToStart = $true;
         Start-Sleep 2
     }
-    $dir, "$env:APPDATA\AutoDarkMode\scripts.yaml" | Remove-Item -Recurse -Force -ErrorAction 0
-    if($aw) {Start-Process "$env:LOCALAPPDATA\Programs\$a\adm-app\$($a)Svc.exe"}
-    Echoo "Done"
-    return
+
+    Echoo "Creating backup of scripts.yaml..." 1
+    If ((Get-Item "$admData\scripts.yaml").Length -ne 289) {
+        Rename-Item "$admData\scripts.yaml" -NewName `
+            "scripts_$(Get-Date -uformat '%Y-%m-%d_%H-%M-%S').BACKUP"
+    }
+
+    Echoo "Removing win_scripts dir..." 1
+    $winscriptsPath | Remove-Item -Recurse -Force -ea 0
+    
+    Echoo "Starting ADM..." 1
+    if($admToStart) {$null = & $admSvcPath}
+
+    Echoo "Done";return
 }
 
-""
-Echoo "Creating backup..."
-Copy-Item "$dir\" "$backup\" -Force -Recurse -ErrorAction 0
+# Exit if ADM not found.
+if (!(Test-Path $admLocation -Type Container) -or !(Test-Path $admData -Type Container)) {
+    Echoo "Auto Dark Mode not found.";return
+}
 
-Echoo "Removing old version and junk files..."
-Get-ChildItem -Directory | `
-    Where-Object {($_.name -eq $dir) -or ($_.name -eq "$dir-master")} | `
-    Remove-Item -Recurse -Force
-Get-ChildItem -File | `
-    Where-Object {$_.name -eq "m.zip"} | `
-    Remove-Item -Recurse -Force
 
-Echoo "Downloading and installing win_scripts..."
-Invoke-WebRequest https://github.com/boredwz/win_scripts/archive/refs/heads/master.zip -OutFile m.zip
-Expand-Archive m.zip -DestinationPath ".\"
-Remove-Item m.zip
-Rename-Item "$dir-master" -NewName $dir
 
+# 1. Create backup of custom scripts.
+if (Test-Path $winscriptsPath -Type Container) {
+    Echoo "Creating backup of custom scripts..."
+    Rename-Item $winscriptsPath -NewName $winscriptsBackupName
+    $winscriptsBackupCreated = $true
+}
+
+# 2. Download win_scripts.
+Echoo "Downloading win_scripts..."
+Invoke-WebRequest $masterzipUrl -OutFile "$customLocation\win_scripts-master.zip"
+Expand-Archive "$customLocation\win_scripts-master.zip" -DestinationPath "$customLocation\"
+Remove-Item "$customLocation\win_scripts-master.zip" -Force
+Rename-Item "$customLocation\win_scripts-master" -NewName "win_scripts"
+
+# 3. Modify scripts.yaml (Do not if [-Update]).
 if (!$Update) {
-    Echoo "Setting up ADM scripts.yaml..."
-    $c = (Get-Content "$dir\ps\adm_scripts.yaml") -replace `
-        'C:\\\\\.\.CHANGE THIS\.\.\\\\win_scripts\\\\ps',
-        ((Join-Path $Path "win_scripts\ps") -replace '\\','\\')
-    $c -replace 'Enabled: false','Enabled: true' | Set-Content "$env:APPDATA\AutoDarkMode\scripts.yaml" -Force
+    Echoo "Modifying scripts.yaml..."
+    $folder = if ($Vbs) {"vbs"} else {"ps"}
+    $find = 'C:\\\\\.\.CHANGE THIS\.\.\\\\win_scripts\\\\' + $folder
+    $replace = ((Join-Path $customLocation "win_scripts\$folder") -replace '\\','\\')
+    $c = (Get-Content "$winscriptsPath\$folder\adm_scripts.yaml") -replace $find, $replace
+    $c -replace 'Enabled: false','Enabled: true' | Set-Content "$admData\scripts.yaml" -Force
 }
 
-Echoo "Restoring backup..."
-if (Test-Path $backup -PathType Container) {
-    Copy-Folder -source "$backup\" -destination "$dir\"
-    Remove-Item "$backup\" -Recurse -Force
+# 4. Restore backup of custom scripts.
+if ($winscriptsBackupCreated) {
+    Echoo "Restoring custom scripts..."
+    Copy-Folder -source "$customLocation\$winscriptsBackupName\" -destination "$winscriptsPath\"
+    Remove-Item "$customLocation\$winscriptsBackupName\" -Recurse -Force
 }
-Echoo "Done"
-""
 
-Set-Location $savedLocation
+Echoo "Done";"";return
