@@ -20,6 +20,6 @@ if ($rest_exists) {
     Invoke-Expression "&{$(Invoke-WebRequest -useb $rest_url)} $rest_arg"
 }
 
-Start-Sleep 2
+Start-Sleep 4
 '{0} | restore foreground window' -f (get-date -f "hh:mm:ss.fff")
 $null = (& ".\foreground_window.ps1" -set $activeWindowId)
