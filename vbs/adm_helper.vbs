@@ -50,8 +50,8 @@ Call Echoo(" Trigger: " & trigger, True)
 Call Echoo("", True)
 
 Call RestartExplorer() ' Restart explorer.exe
-Call RunPsScripts() ' Run PS Theme scripts (ps\_adm_helper\*.ps1)
-Call RefreshAdmTheme() ' Refresh ADM theme if wallpaper not changing
+'Call RunPsScripts() ' Run PS Theme scripts (ps\_adm_helper\*.ps1)
+'Call RefreshAdmTheme() ' Refresh ADM theme if wallpaper not changing
 Call RestoreActiveWindow() ' Save currently active window (ps\foreground_window.ps1)
 
 Call LockDelete("vbs\" & WScript.ScriptName & "_lockfile") ' Delete Lock File
@@ -154,18 +154,18 @@ Sub RestartExplorer()
         If objFSO.FileExists("vbs\restart_explorer.vbs") Then
             command = "cscript //nologo ""vbs\restart_explorer.vbs"""
             If isRestartModeMinimized Then command = command & " /minimized"
-            Call objShell.Run(command, 0, False)
+            Call objShell.Run(command, 0, True)
         Else
             command = "$e='explorer';$t=@();(New-Object -co Shell.Application).Windows()|%{$t+="
             If isRestartModeMinimized Then
                 command = command & _
-                "$_.LocationURL};kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 4;$t|%{saps $_ -win min}"
+                "$_.Document.Folder.Self.Path};kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 5;$t|%{sleep -m 500;saps $_ -win min}"
             Else
                 command = command & _
-                "@{p=$_.LocationURL;w=if($_.Top -lt 0){if($_.Top -lt -8000){'min'}else{'max'}}else{'nor'}}};" & _
-                "kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 4;$t|%{saps $_.p -win $_.w}"
+                "@{p=$_.Document.Folder.Self.Path;w=if($_.Top -lt 0){if($_.Top -lt -8000){'min'}else{'max'}}else{'nor'}}};" & _
+                "kill -n $e -for;sleep 1;if(!($null=ps $e -ea 0)){saps $e};sleep 5;$t|%{sleep -m 500;saps $_.p -win $_.w}"
             End If
-            Call objShell.Run("powershell.exe -noni -nol -nop -ep bypass -c """ & command & """", 0, False)
+            Call objShell.Run("powershell.exe -noni -nol -nop -ep bypass -c """ & command & """", 0, True)
         End If
 
         explorerRestarted = True
@@ -197,7 +197,7 @@ Sub RefreshAdmTheme()
     Set objWMI = GetObject("winmgmts:\\.\root\cimv2")
     If objWMI.ExecQuery("Select * from Win32_Process Where Name = 'AutoDarkModeSvc.exe'").Count = 0 Then Exit Sub
 
-    If explorerRestarted Then Call WScript.Sleep(5000)
+    'If explorerRestarted Then Call WScript.Sleep(5000)
     Dim admShellExe, admForceTheme
     admShellExe = objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "\Programs\AutoDarkMode\adm-app\AutoDarkModeShell.exe"
     admForceTheme = " --force-light"
@@ -214,7 +214,7 @@ Sub RestoreActiveWindow()
     ' return if /noact or if no active window title
     If (Not doActivateWin) Or IsEmpty(activeWinId) Then Exit Sub
 
-    If Not admRefreshed Then Call WScript.Sleep(7000)
+    'If Not admRefreshed Then Call WScript.Sleep(7000)
     command = "powershell.exe -noni -nol -nop -ep bypass -f " & _
         """" & objFSO.GetAbsolutePathName("ps\foreground_window.ps1") & """" & " -set " & activeWinId
     Set objExec = objShell.Exec(command)

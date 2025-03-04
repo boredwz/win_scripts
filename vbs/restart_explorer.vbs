@@ -34,7 +34,7 @@ For Each tab In objWindows
     intX = intX + 1
     ReDim Preserve listExplorerTabs(intX)
     Set listExplorerTabs(intX) = New classExplorerTab
-    listExplorerTabs(intX).Url = tab.LocationURL
+    listExplorerTabs(intX).Url = tab.Document.Folder.Self.Path
     listExplorerTabs(intX).WindowState = 1
     If (tab.Top < 0) Then listExplorerTabs(intX).WindowState = 3
     If (tab.Top < -8000) Or (Minimized) Then listExplorerTabs(intX).WindowState = 2
@@ -49,13 +49,13 @@ Call WScript.Sleep(1000)
 If objWMIService.ExecQuery("Select * from Win32_Process Where Name = 'explorer.exe'").Count = 0 Then
     Call objShell.Run("explorer")
 End If
-Call WScript.Sleep(4000)
+Call WScript.Sleep(5000)
 
 ' Restore tabs
 If intX <> -1 Then
     For i = 0 To UBound(listExplorerTabs)
+        Call WScript.Sleep(500)
         Call objShell.Run(listExplorerTabs(i).Url, listExplorerTabs(i).WindowState, False)
-        Call WScript.Sleep(100)
     Next
 End If
 
