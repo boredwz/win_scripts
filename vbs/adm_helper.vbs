@@ -50,8 +50,8 @@ Call Echoo(" Trigger: " & trigger, True)
 Call Echoo("", True)
 
 Call RestartExplorer() ' Restart explorer.exe
-'Call RunPsScripts() ' Run PS Theme scripts (ps\_adm_helper\*.ps1)
-'Call RefreshAdmTheme() ' Refresh ADM theme if wallpaper not changing
+Call RunPsScripts() ' Run PS Theme scripts (ps\_adm_helper\*.ps1)
+Call RefreshAdmTheme() ' Refresh ADM theme if wallpaper not changing
 Call RestoreActiveWindow() ' Save currently active window (ps\foreground_window.ps1)
 
 Call LockDelete("vbs\" & WScript.ScriptName & "_lockfile") ' Delete Lock File
